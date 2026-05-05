@@ -194,7 +194,7 @@
         let currentAudio = null;
 
         // --- GEMINI API SETUP ---
-        const apiKey = "AIzaSyCSKTvy2Pg76f6U7-WJyKvkPHOalZL0r5s"; // <--- INSERT YOUR ACTUAL API KEY HERE
+        const apiKey = "AIzaSyDgmzwLCRO9DxRj6u2Ued0SXxF4PYXOPb0"; // <--- INSERT YOUR ACTUAL API KEY HERE
         
         const TTS_MODEL = "gemini-2.5-flash-preview-tts";
         const TTS_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${TTS_MODEL}:generateContent?key=${apiKey}`;
@@ -633,7 +633,7 @@
         // --- ROUTING / FLOW CONTROLLER ---
         function renderIntro() {
             currentState = 'intro';
-            setAnimation('anim-sigh', "Management says I have to 'educate' you before you take the test. Let's just get this over with.");
+            setAnimation('anim-sigh', "Management says I have to 'educate' you before you take the test. And since your on-site IT guys are always so nice, I'm going to be a REAL techie know-it-all for the entire training to offset their positive attitudes.  Everyone knows IT people are rude.  Let's just get this over with.");
             hideTTSButton();
             contentArea.innerHTML = `
                 <div class="animate-fade-in text-left">
