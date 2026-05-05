@@ -251,31 +251,35 @@
             }
         }
 
-        async function playPodcast() {
-            if (!apiKey || apiKey === "") {
-                alert("API Key is missing! Please paste your key in the code (Line 158) to hear the audio.");
-                return;
-            }
-
-            if(currentAudio) { currentAudio.pause(); currentAudio = null; }
-
+        function playPodcast() {
             const btn = document.getElementById('tts-btn');
-            const loader = document.getElementById('audio-loading');
-            btn.classList.add('hidden');
-            loader.classList.remove('hidden');
+            btn.classList.add('opacity-50', 'cursor-not-allowed');
 
             let promptText = "";
             if (currentState === 'training') promptText = lessons[currentLessonIndex].audioPrompt;
-            else if (currentState === 'quiz') promptText = "Say in a sarcastic, annoyed IT-guy voice: Stop clicking hints and answer the question, I have a server on fire.";
+            else if (currentState === 'quiz') promptText = "Stop clicking hints and answer the question, I have a server on fire.";
 
-            const payload = {
-                contents: [{ parts: [{ text: promptText }] }],
-                generationConfig: {
-                    responseModalities: ["AUDIO"],
-                    speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: "Fenrir" } } }
-                }
+            // Strip out the prompt instructions so it only speaks the actual dialogue
+            promptText = promptText.replace(/Say in.*?voice:\s*/i, '');
+
+            // Use the Browser's Native TTS Engine (Zero API calls, instant playback)
+            const utterance = new SpeechSynthesisUtterance(promptText);
+            
+            // Drop the pitch to sound like an exhausted IT Guy
+            utterance.pitch = 0.7; 
+            utterance.rate = 1.0;
+
+            // Trigger the angry waving animation while he talks
+            utterance.onstart = () => { character.classList.add('anim-angry-wave'); };
+            utterance.onend = () => { 
+                character.classList.remove('anim-angry-wave'); 
+                btn.classList.remove('opacity-50', 'cursor-not-allowed');
             };
 
+            // Stop any overlapping audio and play the new rant
+            window.speechSynthesis.cancel();
+            window.speechSynthesis.speak(utterance);
+        }
             try {
                 const result = await fetchWithRetry(TTS_API_URL, {
                     method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
