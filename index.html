@@ -196,9 +196,9 @@
         // --- GEMINI API SETUP ---
         const apiKey = "AIzaSyDgmzwLCRO9DxRj6u2Ued0SXxF4PYXOPb0"; // <--- INSERT YOUR ACTUAL API KEY HERE
         
-        const TTS_MODEL = "gemini-2.5-flash-preview-tts";
+        const TTS_MODEL = "gemini-1.5-flash";
         const TTS_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${TTS_MODEL}:generateContent?key=${apiKey}`;
-        const TEXT_MODEL = "gemini-2.5-flash-preview-09-2025";
+        const TEXT_MODEL = "gemini-1.5-flash";
         const TEXT_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${TEXT_MODEL}:generateContent?key=${apiKey}`;
 
         // Utility: Convert PCM16 Base64 to WAV Blob
