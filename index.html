@@ -1,4 +1,4 @@
-
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -128,7 +128,6 @@
 
     <div id="app-container" class="glass-panel rounded-2xl shadow-2xl w-full max-w-5xl overflow-hidden relative z-10 border-t-8 border-newman-blue">
         
-        <!-- Header -->
         <div class="bg-slate-900 text-white p-4 flex justify-between items-center px-6">
             <div>
                 <h1 class="text-2xl font-black tracking-tight uppercase text-newman-blue" id="header-title">IT Survival Training</h1>
@@ -141,7 +140,6 @@
         </div>
 
         <div class="flex flex-col md:flex-row p-6 min-h-[550px]">
-            <!-- THE IT GUY COLUMN -->
             <div class="w-full md:w-1/3 flex flex-col items-center justify-start border-b md:border-b-0 md:border-r border-slate-200 pb-6 md:pb-0 md:pr-6">
                 <div id="character" class="character-container">
                     <div class="geek-arm-l"></div>
@@ -165,12 +163,11 @@
                 
                 <div class="mt-6 text-center bg-slate-50 p-4 rounded-xl shadow-inner border border-slate-200 w-full relative">
                     <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-slate-800 text-white text-[10px] font-bold px-3 py-1 rounded uppercase tracking-wider">
-                        The Typical IT Guy
+                        The IT Guy
                     </div>
                     <div id="geek-dialogue" class="text-sm font-semibold text-slate-700 mt-2 italic">
                         "Welcome. Please don't break anything. I haven't slept since 2019."
                     </div>
-                    <!-- Audio Button -->
                     <button id="tts-btn" onclick="playPodcast()" class="hidden mt-3 w-full bg-indigo-100 hover:bg-indigo-200 text-indigo-700 text-xs font-bold py-2 px-3 rounded shadow-sm border border-indigo-200 transition flex items-center justify-center gap-2">
                         <span>🎧</span> Listen to Audio Rant
                     </button>
@@ -178,10 +175,8 @@
                 </div>
             </div>
 
-            <!-- CONTENT COLUMN -->
             <div id="content-area" class="w-full md:w-2/3 flex flex-col justify-center pl-0 md:pl-8 mt-6 md:mt-0">
-                <!-- Content Injected via JS -->
-            </div>
+                </div>
         </div>
     </div>
 
@@ -191,51 +186,12 @@
         let currentLessonIndex = 0;
         let currentQuizStage = 0;
         let score = 100;
-        let currentAudio = null;
 
         // --- GEMINI API SETUP ---
         const apiKey = "AIzaSyD209oaggQYZ0mlsZQ2OslbTyBXKgkmigE"; // <--- INSERT YOUR ACTUAL API KEY HERE
         
-        const TTS_MODEL = "gemini-1.5-flash";
-        const TTS_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${TTS_MODEL}:generateContent?key=${apiKey}`;
         const TEXT_MODEL = "gemini-1.5-flash";
         const TEXT_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${TEXT_MODEL}:generateContent?key=${apiKey}`;
-
-        // Utility: Convert PCM16 Base64 to WAV Blob
-        function base64ToArrayBuffer(base64) {
-            const binaryString = window.atob(base64);
-            const len = binaryString.length;
-            const bytes = new Uint8Array(len);
-            for (let i = 0; i < len; i++) { bytes[i] = binaryString.charCodeAt(i); }
-            return bytes.buffer;
-        }
-
-        function createWavBlob(pcmData, sampleRate = 24000) {
-            const numChannels = 1;
-            const bitsPerSample = 16;
-            const blockAlign = numChannels * (bitsPerSample / 8);
-            const byteRate = sampleRate * blockAlign;
-            const dataSize = pcmData.byteLength;
-            const buffer = new ArrayBuffer(44 + dataSize);
-            const view = new DataView(buffer);
-
-            const writeString = (offset, string) => {
-                for (let i = 0; i < string.length; i++) { view.setUint8(offset + i, string.charCodeAt(i)); }
-            };
-
-            writeString(0, 'RIFF'); view.setUint32(4, 36 + dataSize, true); writeString(8, 'WAVE');
-            writeString(12, 'fmt '); view.setUint32(16, 16, true); view.setUint16(20, 1, true); 
-            view.setUint16(22, numChannels, true); view.setUint32(24, sampleRate, true);
-            view.setUint32(28, byteRate, true); view.setUint16(32, blockAlign, true);
-            view.setUint16(34, bitsPerSample, true); writeString(36, 'data');
-            view.setUint32(40, dataSize, true);
-
-            const pcmView = new Uint8Array(pcmData);
-            const outView = new Uint8Array(buffer, 44);
-            outView.set(pcmView);
-
-            return new Blob([buffer], { type: 'audio/wav' });
-        }
 
         async function fetchWithRetry(url, options, retries = 3) {
             const delays = [1000, 2000, 4000];
@@ -251,6 +207,7 @@
             }
         }
 
+        // --- AUDIO: BROWSER NATIVE TTS (SAFE FALLBACK) ---
         function playPodcast() {
             const btn = document.getElementById('tts-btn');
             btn.classList.add('opacity-50', 'cursor-not-allowed');
@@ -267,7 +224,7 @@
             // Force the browser to load its voice list
             const voices = window.speechSynthesis.getVoices();
             
-            // Hunt for a premium, natural-sounding voice
+            // Hunt for a premium, natural-sounding voice (Best on Microsoft Edge)
             let selectedVoice = voices.find(v => v.name.includes("Online (Natural)") && v.name.includes("Male"));
             if (!selectedVoice) selectedVoice = voices.find(v => v.name.includes("Google UK English Male"));
             if (!selectedVoice) selectedVoice = voices.find(v => v.name.includes("Mark"));
@@ -293,12 +250,9 @@
         if (speechSynthesis.onvoiceschanged !== undefined) {
             speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
         }
-        async function begForHint() {
-            if (!apiKey || apiKey === "") {
-                alert("API Key is missing! Please paste your key in the code (Line 158).");
-                return;
-            }
 
+        // --- API FUNCTIONS (WITH OFFLINE SAVERS) ---
+        async function begForHint() {
             const hintBtn = document.getElementById('hint-btn');
             const hintBox = document.getElementById('hint-box');
             const hintText = document.getElementById('hint-text');
@@ -317,53 +271,53 @@
             const payload = { contents: [{ parts: [{ text: prompt }] }] };
 
             try {
+                if (!apiKey) throw new Error("No API Key");
                 const result = await fetchWithRetry(TEXT_API_URL, {
                     method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
                 });
+                if (result.error) throw new Error(result.error.message);
+
                 const hint = result.candidates[0].content.parts[0].text;
                 hintText.innerHTML = `<strong>IT Guy:</strong> ${hint}`;
                 setAnimation('anim-sigh', "Read it slowly. Sound out the words if you have to.");
                 hintBtn.innerHTML = "✨ Hint Deployed";
             } catch (e) {
-                hintText.innerHTML = "<em>Error: Network timeout. The IT Guy ignored your ticket.</em>";
-                hintBtn.innerHTML = "✨ Beg for a Hint";
-                hintBtn.disabled = false; hintBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                console.error("API Failed, using Offline Fallback:", e);
+                // OFFLINE DEMO SAVER
+                const fallbackHints = [
+                    "I could give you the answer, but then what are we paying you for? Pick the one that doesn't get us hacked.",
+                    "Read the options again. One of them screams 'I want to get fired'. Don't pick that one.",
+                    "I'm currently busy resetting the password you forgot yesterday. Take a wild guess.",
+                    "It's the option that doesn't involve handing your life savings to a stranger. Come on."
+                ];
+                const randomHint = fallbackHints[Math.floor(Math.random() * fallbackHints.length)];
+                hintText.innerHTML = `<strong>IT Guy:</strong> ${randomHint}`;
+                setAnimation('anim-sigh', "My AI is offline, so I have to insult you manually.");
+                hintBtn.innerHTML = "✨ Hint Deployed";
             }
         }
 
         async function generateNightmare() {
-            if (!apiKey || apiKey === "") {
-                alert("API Key is missing! Please paste your key in the code (Line 158).");
-                return;
-            }
-
             const genBtn = document.getElementById('gen-nightmare-btn');
             genBtn.disabled = true; genBtn.classList.add('opacity-50', 'animate-pulse');
             genBtn.innerHTML = "✨ Concocting fresh horrors...";
             
             setAnimation('anim-typing', "Hold on, I'm writing a custom nightmare specifically for you.");
 
-            const prompt = `You are a cynical, overworked IT professional writing a cybersecurity training exam. Generate ONE multiple-choice scenario. Make it extremely edgy, funny, and sarcastic. Keep it related to office/university IT security.`;
+            const prompt = `You are a cynical, overworked IT professional writing a cybersecurity training exam. Generate ONE multiple-choice scenario. Make it extremely edgy, funny, and sarcastic. Keep it related to office/university IT security. Output in raw JSON exactly matching this schema: {"animationClass": "string", "dialogue": "string", "title": "string", "text": "string", "options": [{"text": "string", "score": number, "correct": boolean, "feedback": "string"}]}`;
 
             const payload = {
                 contents: [{ parts: [{ text: prompt }] }],
-                generationConfig: {
-                    responseMimeType: "application/json",
-                    responseSchema: {
-                        type: "OBJECT",
-                        properties: {
-                            animationClass: { type: "STRING", description: "Choose one exactly: anim-angry-wave, anim-suspicious, anim-facepalm, anim-typing, anim-twitch, anim-sigh, anim-smug, anim-panic, anim-vengeance, anim-dead" },
-                            dialogue: { type: "STRING" }, title: { type: "STRING" }, text: { type: "STRING" },
-                            options: { type: "ARRAY", items: { type: "OBJECT", properties: { text: { type: "STRING" }, score: { type: "NUMBER" }, correct: { type: "BOOLEAN" }, feedback: { type: "STRING" } } } }
-                        }
-                    }
-                }
+                generationConfig: { responseMimeType: "application/json" }
             };
 
             try {
+                 if (!apiKey) throw new Error("No API Key");
                  const result = await fetchWithRetry(TEXT_API_URL, {
                     method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
                  });
+                 if (result.error) throw new Error(result.error.message);
+
                  const newScenario = JSON.parse(result.candidates[0].content.parts[0].text);
                  newScenario.options.sort(() => Math.random() - 0.5);
                  scenarios.push(newScenario);
@@ -371,18 +325,25 @@
                  scoreContainer.style.display = 'block'; 
                  renderQuizScenario();
             } catch(e) {
-                genBtn.innerHTML = "✨ Failed. Try again.";
-                genBtn.disabled = false; genBtn.classList.remove('opacity-50', 'animate-pulse');
-                setAnimation('anim-angry-wave', "Great, you broke the AI too.");
+                console.error("API Failed, using Offline Fallback:", e);
+                // OFFLINE DEMO SAVER
+                const fallbackScenario = {
+                    animationClass: "anim-vengeance", dialogue: "You asked for a nightmare? Here it is.", title: "The Flash Drive",
+                    text: "You find a mysterious USB drive in the campus parking lot labeled 'Executive Salary Data 2026.xlsx'. What do you do?",
+                    options: [
+                        { text: "Plug it in immediately. I need to know what the CISO makes.", score: -50, correct: false, feedback: "You just deployed a keylogger to the entire Newman network. Pack your desk." },
+                        { text: "Give it to IT so we can securely incinerate it.", score: 20, correct: true, feedback: "Good. You survived. Barely." }
+                    ]
+                };
+                fallbackScenario.options.sort(() => Math.random() - 0.5);
+                scenarios.push(fallbackScenario);
+                currentQuizStage = scenarios.length - 1; 
+                scoreContainer.style.display = 'block'; 
+                renderQuizScenario();
             }
         }
         
         async function roastPerformance() {
-            if (!apiKey || apiKey === "") {
-                alert("API Key is missing! Please paste your key in the code (Line 158).");
-                return;
-            }
-
             const roastBtn = document.getElementById('roast-btn');
             const roastBox = document.getElementById('roast-box');
             const roastText = document.getElementById('roast-text');
@@ -404,9 +365,12 @@
             const payload = { contents: [{ parts: [{ text: prompt }] }] };
 
             try {
+                if (!apiKey) throw new Error("No API Key");
                 const result = await fetchWithRetry(TEXT_API_URL, {
                     method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
                 });
+                if (result.error) throw new Error(result.error.message);
+
                 const roast = result.candidates[0].content.parts[0].text;
                 roastText.innerHTML = `<strong>IT Guy's Official Verdict:</strong> ${roast}`;
                 if (score >= 70) setAnimation('anim-smug', "There. I gave you attention. Now close my ticket.");
@@ -415,9 +379,18 @@
                 roastBtn.innerHTML = "✨ Roasted";
                 roastBtn.classList.remove('animate-pulse');
             } catch (e) {
-                roastText.innerHTML = "<em>Error: Network timeout. The IT Guy doesn't even have the energy to insult you right now.</em>";
-                roastBtn.innerHTML = "✨ Roast My Performance";
-                roastBtn.disabled = false; roastBtn.classList.remove('opacity-50', 'cursor-not-allowed', 'animate-pulse');
+                console.error("API Failed, using Offline Fallback:", e);
+                // OFFLINE DEMO SAVER
+                const fallbackRoast = score >= 70 
+                    ? "You passed, but barely. Don't let it go to your head. You still need to change your password so I can sleep tonight." 
+                    : "I have seen broken toasters with better security instincts than you. You are a walking liability to this university.";
+                
+                roastText.innerHTML = `<strong>IT Guy's Official Verdict:</strong> ${fallbackRoast}`;
+                if (score >= 70) setAnimation('anim-smug', "There. I gave you attention. Now close my ticket.");
+                else setAnimation('anim-facepalm', "I'm printing this roast and putting it on the fridge in the server room.");
+                
+                roastBtn.innerHTML = "✨ Roasted (Offline Mode)";
+                roastBtn.classList.remove('animate-pulse');
             }
         }
 
@@ -438,7 +411,7 @@
         }
 
         function showTTSButton() { document.getElementById('tts-btn').classList.remove('hidden'); }
-        function hideTTSButton() { document.getElementById('tts-btn').classList.add('hidden'); if(currentAudio) currentAudio.pause(); }
+        function hideTTSButton() { document.getElementById('tts-btn').classList.add('hidden'); window.speechSynthesis.cancel(); }
 
         // --- PHASE 1: INTERACTIVE TRAINING ---
         const lessons = [
@@ -626,7 +599,7 @@
         // --- ROUTING / FLOW CONTROLLER ---
         function renderIntro() {
             currentState = 'intro';
-            setAnimation('anim-sigh', "Management says I have to 'educate' you before you take the test. And since your on-site IT guys are always so nice, I'm going to be a REAL techie know-it-all for the entire training to offset their positive attitudes.  Everyone knows IT people are rude.  Let's just get this over with.");
+            setAnimation('anim-sigh', "Management says I have to 'educate' you before you take the test. Let's just get this over with.");
             hideTTSButton();
             contentArea.innerHTML = `
                 <div class="animate-fade-in text-left">
@@ -759,7 +732,6 @@
                         <p class="text-lg text-slate-700 mb-6 font-semibold">You survived the training. But we aren't done yet. To secure the network and save me from resetting your password at 3 PM every Friday, complete the final two steps below.</p>
                         
                         <div class="space-y-4 mb-8">
-                            <!-- Step 1 Complete -->
                             <div class="bg-emerald-50 border-2 border-emerald-300 rounded-xl p-4 flex items-center justify-between">
                                 <div class="flex items-center gap-4">
                                     <div class="bg-emerald-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">1</div>
@@ -768,7 +740,6 @@
                                 <div class="text-2xl">✅</div>
                             </div>
 
-                            <!-- Step 2 SSPR -->
                             <div class="bg-white border-2 border-slate-300 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between shadow-sm">
                                 <div class="flex items-center gap-4 mb-4 sm:mb-0 w-full">
                                     <div class="bg-slate-800 text-white rounded-full min-w-[2rem] w-8 h-8 flex items-center justify-center font-bold">2</div>
@@ -780,7 +751,6 @@
                                 <button onclick="alert('This will redirect the user to: https://aka.ms/ssprsetup')" class="w-full sm:w-auto bg-newman-blue hover:bg-blue-600 text-white font-bold py-2 px-6 rounded shadow whitespace-nowrap transition">Enroll Now ➔</button>
                             </div>
 
-                            <!-- Step 3 Reset Password -->
                             <div class="bg-white border-2 border-slate-300 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between shadow-sm">
                                 <div class="flex items-center gap-4 mb-4 sm:mb-0 w-full">
                                     <div class="bg-slate-800 text-white rounded-full min-w-[2rem] w-8 h-8 flex items-center justify-center font-bold">3</div>
