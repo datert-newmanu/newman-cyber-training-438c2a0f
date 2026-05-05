@@ -280,30 +280,6 @@
             window.speechSynthesis.cancel();
             window.speechSynthesis.speak(utterance);
         }
-            try {
-                const result = await fetchWithRetry(TTS_API_URL, {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
-                });
-                
-                const base64Audio = result.candidates[0].content.parts[0].inlineData.data;
-                const pcmBuffer = base64ToArrayBuffer(base64Audio);
-                const wavBlob = createWavBlob(pcmBuffer, 24000); 
-                const audioUrl = URL.createObjectURL(wavBlob);
-                
-                currentAudio = new Audio(audioUrl);
-                currentAudio.play();
-                
-                character.classList.add('anim-angry-wave'); 
-                currentAudio.onended = () => { character.classList.remove('anim-angry-wave'); };
-
-            } catch (e) {
-                alert("The IT Guy's microphone is muted. Check your API key or network connection.");
-            } finally {
-                loader.classList.add('hidden');
-                btn.classList.remove('hidden');
-            }
-        }
-
         async function begForHint() {
             if (!apiKey || apiKey === "") {
                 alert("API Key is missing! Please paste your key in the code (Line 158).");
