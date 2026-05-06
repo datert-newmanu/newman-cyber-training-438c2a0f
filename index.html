@@ -198,12 +198,22 @@
         const TEXT_MODEL = "gemini-2.5-flash-preview-09-2025";
         const TEXT_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${TEXT_MODEL}:generateContent?key=${apiKey}`;
 
+        const safetySettings = [
+            { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
+            { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
+            { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" },
+            { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" }
+        ];
+
         async function fetchWithRetry(url, options, retries = 5) {
             const delays = [1000, 2000, 4000, 8000, 16000];
             for (let i = 0; i < retries; i++) {
                 try {
                     const response = await fetch(url, options);
-                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    if (!response.ok) {
+                        const errData = await response.json().catch(() => ({}));
+                        throw new Error(`HTTP error! status: ${response.status} - ${errData.error?.message || ''}`);
+                    }
                     return await response.json();
                 } catch (e) {
                     if (i === retries - 1) throw e;
@@ -256,20 +266,27 @@
 
             const scenario = scenarios[currentQuizStage];
             const prompt = `You are an extremely cynical, edgy, overworked IT guy. A user is taking a cybersecurity test and is stuck on this scenario: "${scenario.text}". 
-            Provide a 1-to-2 sentence sarcastic hint that mocks them for needing help, gives a tiny clue to the right answer, but DOES NOT give the exact answer away.`;
+            Provide a 1-to-2 sentence sarcastic hint that playfully mocks them for needing help, gives a tiny clue to the right answer, but DOES NOT give the exact answer away. Keep it safe for work.`;
 
-            const payload = { contents: [{ parts: [{ text: prompt }] }] };
+            const payload = { 
+                contents: [{ parts: [{ text: prompt }] }],
+                safetySettings: safetySettings 
+            };
 
             try {
                 const result = await fetchWithRetry(TEXT_API_URL, {
                     method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
                 });
-                const hint = result.candidates[0].content.parts[0].text;
+                
+                const hint = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (!hint) throw new Error("AI response blocked by safety filters.");
+                
                 hintText.innerHTML = `<strong>IT Guy:</strong> ${hint}`;
                 setAnimation('anim-sigh', "Read it slowly. Sound out the words if you have to.");
                 hintBtn.innerHTML = "✨ Hint Deployed";
             } catch (e) {
-                hintText.innerHTML = "<em>Error: Network timeout. The IT Guy ignored your ticket.</em>";
+                console.error("Hint Error:", e);
+                hintText.innerHTML = "<em>Error: Network timeout or AI blocked. The IT Guy ignored your ticket.</em>";
                 hintBtn.innerHTML = "✨ Beg for a Hint";
                 hintBtn.disabled = false; hintBtn.classList.remove('opacity-50', 'cursor-not-allowed');
             }
@@ -282,10 +299,11 @@
             
             setAnimation('anim-typing', "Hold on, I'm writing a custom nightmare specifically for you.");
 
-            const prompt = `You are a cynical, overworked IT professional writing a cybersecurity training exam. Generate ONE multiple-choice scenario. Make it edgy, funny, and sarcastic. Keep it related to office/university IT security.`;
+            const prompt = `You are a cynical, overworked IT professional writing a cybersecurity training exam. Generate ONE multiple-choice scenario. Make it edgy, funny, and sarcastic but safe for work. Keep it related to office/university IT security.`;
 
             const payload = {
                 contents: [{ parts: [{ text: prompt }] }],
+                safetySettings: safetySettings,
                 generationConfig: {
                     responseMimeType: "application/json",
                     responseSchema: {
@@ -303,13 +321,18 @@
                  const result = await fetchWithRetry(TEXT_API_URL, {
                     method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
                  });
-                 const newScenario = JSON.parse(result.candidates[0].content.parts[0].text);
+                 
+                 const textResponse = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                 if (!textResponse) throw new Error("AI response blocked by safety filters.");
+                 
+                 const newScenario = JSON.parse(textResponse);
                  newScenario.options.sort(() => Math.random() - 0.5);
                  scenarios.push(newScenario);
                  currentQuizStage = scenarios.length - 1; 
                  scoreContainer.style.display = 'block'; 
                  renderQuizScenario();
             } catch(e) {
+                console.error("Nightmare Error:", e);
                 genBtn.innerHTML = "✨ Failed. Try again.";
                 genBtn.disabled = false; genBtn.classList.remove('opacity-50', 'animate-pulse');
                 setAnimation('anim-angry-wave', "Great, you broke the AI too.");
@@ -333,15 +356,21 @@
             const prompt = `You are a cynical, edgy, overworked IT guy. A user just finished their mandatory cybersecurity training with a score of ${score}%. 
             Write a 2-3 sentence sarcastic roast about their performance. 
             If they scored high (70-100%), accept it giving them a cute and witty compliment but mock them for expecting someone to throw them a parade because we've seen their browser history *WINK, WINK*. 
-            If they failed (under 70%), compliment their attempt comparing it to the time and effort they've put in over the years to "discreetly" delete their browser history when IT is nearby but absolutely destroy them verbally for being a threat to the university network and for believing that their internet history was actually deleted.`;
+            If they failed (under 70%), compliment their attempt comparing it to the time and effort they've put in over the years to "discreetly" delete their browser history when IT is nearby but verbally roast them for being a threat to the university network. Keep it safe for work.`;
 
-            const payload = { contents: [{ parts: [{ text: prompt }] }] };
+            const payload = { 
+                contents: [{ parts: [{ text: prompt }] }],
+                safetySettings: safetySettings
+            };
 
             try {
                 const result = await fetchWithRetry(TEXT_API_URL, {
                     method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
                 });
-                const roast = result.candidates[0].content.parts[0].text;
+                
+                const roast = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (!roast) throw new Error("AI response blocked by safety filters.");
+                
                 roastText.innerHTML = `<strong>IT Guy's Official Verdict:</strong> ${roast}`;
                 if (score >= 70) setAnimation('anim-smug', "There. I gave you attention. Now close my ticket.");
                 else setAnimation('anim-facepalm', "I'm printing this roast and putting it on the fridge in the server room and on every bulletin board in every building on campus.");
@@ -349,7 +378,8 @@
                 roastBtn.innerHTML = "✨ Roasted";
                 roastBtn.classList.remove('animate-pulse');
             } catch (e) {
-                roastText.innerHTML = "<em>Error: Network timeout. The IT Guy doesn't even have the energy to insult you right now.</em>";
+                console.error("Roast Error:", e);
+                roastText.innerHTML = "<em>Error: Network timeout or AI blocked. The IT Guy doesn't even have the energy to insult you right now.</em>";
                 roastBtn.innerHTML = "✨ Roast My Performance";
                 roastBtn.disabled = false; roastBtn.classList.remove('opacity-50', 'cursor-not-allowed', 'animate-pulse');
             }
