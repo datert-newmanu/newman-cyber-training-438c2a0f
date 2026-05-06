@@ -304,20 +304,27 @@
             
             setAnimation('anim-typing', "Hold on, I'm writing a custom nightmare specifically for you.");
 
-            const prompt = `You are a cynical, overworked IT professional writing a cybersecurity training exam. Generate ONE multiple-choice scenario. Make it extremely edgy, funny, and sarcastic. Keep it related to office/university IT security. Output in raw JSON exactly matching this schema: {"animationClass": "string", "dialogue": "string", "title": "string", "text": "string", "options": [{"text": "string", "score": number, "correct": boolean, "feedback": "string"}]}`;
+            const prompt = `You are a cynical, overworked IT professional writing a cybersecurity training exam. Generate ONE multiple-choice scenario. Make it edgy, funny, and sarcastic. Keep it related to office/university IT security.`;
 
             const payload = {
                 contents: [{ parts: [{ text: prompt }] }],
-                generationConfig: { responseMimeType: "application/json" }
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                        type: "OBJECT",
+                        properties: {
+                            animationClass: { type: "STRING", description: "Choose one exactly: anim-angry-wave, anim-suspicious, anim-facepalm, anim-typing, anim-twitch, anim-sigh, anim-smug, anim-panic, anim-vengeance, anim-dead" },
+                            dialogue: { type: "STRING" }, title: { type: "STRING" }, text: { type: "STRING" },
+                            options: { type: "ARRAY", items: { type: "OBJECT", properties: { text: { type: "STRING" }, score: { type: "NUMBER" }, correct: { type: "BOOLEAN" }, feedback: { type: "STRING" } } } }
+                        }
+                    }
+                }
             };
 
             try {
-                 if (!apiKey) throw new Error("No API Key");
                  const result = await fetchWithRetry(TEXT_API_URL, {
                     method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
                  });
-                 if (result.error) throw new Error(result.error.message);
-
                  const newScenario = JSON.parse(result.candidates[0].content.parts[0].text);
                  newScenario.options.sort(() => Math.random() - 0.5);
                  scenarios.push(newScenario);
@@ -325,32 +332,25 @@
                  scoreContainer.style.display = 'block'; 
                  renderQuizScenario();
             } catch(e) {
-                console.error("API Failed, using Offline Fallback:", e);
-                // OFFLINE DEMO SAVER
-                const fallbackScenario = {
-                    animationClass: "anim-vengeance", dialogue: "You asked for a nightmare? Here it is.", title: "The Flash Drive",
-                    text: "You find a mysterious USB drive in the campus parking lot labeled 'Executive Salary Data 2026.xlsx'. What do you do?",
-                    options: [
-                        { text: "Plug it in immediately. I need to know what the CISO makes.", score: -50, correct: false, feedback: "You just deployed a keylogger to the entire Newman network. Pack your desk." },
-                        { text: "Give it to IT so we can securely incinerate it.", score: 20, correct: true, feedback: "Good. You survived. Barely." }
-                    ]
-                };
-                fallbackScenario.options.sort(() => Math.random() - 0.5);
-                scenarios.push(fallbackScenario);
-                currentQuizStage = scenarios.length - 1; 
-                scoreContainer.style.display = 'block'; 
-                renderQuizScenario();
+                genBtn.innerHTML = "✨ Failed. Try again.";
+                genBtn.disabled = false; genBtn.classList.remove('opacity-50', 'animate-pulse');
+                setAnimation('anim-angry-wave', "Great, you broke the AI too.");
             }
         }
         
         async function roastPerformance() {
+            if (!apiKey || apiKey === "") {
+                alert("API Key is missing! Please paste your key in the code (Line 158).");
+                return;
+            }
+
             const roastBtn = document.getElementById('roast-btn');
             const roastBox = document.getElementById('roast-box');
             const roastText = document.getElementById('roast-text');
             
             roastBtn.disabled = true;
             roastBtn.classList.add('opacity-50', 'cursor-not-allowed', 'animate-pulse');
-            roastBtn.innerHTML = "✨ Calculating your incompetence...";
+            roastBtn.innerHTML = "✨ Calculating your deserved level of IT sarcasm...";
             
             roastBox.classList.remove('hidden');
             roastText.innerHTML = "<em>IT Guy is aggressively sighing and preparing to destroy your self-esteem...</em>";
@@ -359,38 +359,26 @@
 
             const prompt = `You are a cynical, edgy, overworked IT guy. A user just finished their mandatory cybersecurity training with a score of ${score}%. 
             Write a 2-3 sentence sarcastic roast about their performance. 
-            If they scored high (70-100%), begrudgingly accept it but mock them for wanting a gold star. 
-            If they failed (under 70%), absolutely destroy them verbally for being a threat to the university network.`;
+            If they scored high (70-100%), accept it giving them a cute and witty commpliment but mock them for expecting someone to throw them a parade becuase we've seen their browser history *WINK, WINK*. 
+            If they failed (under 70%), compliment their attempt comparing it to the time and effort they've put in over the years to "discretely" delete their browser history when IT is nearby but absolutely destroy them verbally for being a threat to the university network and for believing that their internet history was actually deleted.`;
 
             const payload = { contents: [{ parts: [{ text: prompt }] }] };
 
             try {
-                if (!apiKey) throw new Error("No API Key");
                 const result = await fetchWithRetry(TEXT_API_URL, {
                     method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
                 });
-                if (result.error) throw new Error(result.error.message);
-
                 const roast = result.candidates[0].content.parts[0].text;
                 roastText.innerHTML = `<strong>IT Guy's Official Verdict:</strong> ${roast}`;
                 if (score >= 70) setAnimation('anim-smug', "There. I gave you attention. Now close my ticket.");
-                else setAnimation('anim-facepalm', "I'm printing this roast and putting it on the fridge in the server room.");
+                else setAnimation('anim-facepalm', "I'm printing this roast and putting it on the fridge in the server room and on every bulletin board in every building on campus.");
                 
                 roastBtn.innerHTML = "✨ Roasted";
                 roastBtn.classList.remove('animate-pulse');
             } catch (e) {
-                console.error("API Failed, using Offline Fallback:", e);
-                // OFFLINE DEMO SAVER
-                const fallbackRoast = score >= 70 
-                    ? "You passed, but barely. Don't let it go to your head. You still need to change your password so I can sleep tonight." 
-                    : "I have seen broken toasters with better security instincts than you. You are a walking liability to this university.";
-                
-                roastText.innerHTML = `<strong>IT Guy's Official Verdict:</strong> ${fallbackRoast}`;
-                if (score >= 70) setAnimation('anim-smug', "There. I gave you attention. Now close my ticket.");
-                else setAnimation('anim-facepalm', "I'm printing this roast and putting it on the fridge in the server room.");
-                
-                roastBtn.innerHTML = "✨ Roasted (Offline Mode)";
-                roastBtn.classList.remove('animate-pulse');
+                roastText.innerHTML = "<em>Error: Network timeout. The IT Guy doesn't even have the energy to insult you right now.</em>";
+                roastBtn.innerHTML = "✨ Roast My Performance";
+                roastBtn.disabled = false; roastBtn.classList.remove('opacity-50', 'cursor-not-allowed', 'animate-pulse');
             }
         }
 
@@ -411,19 +399,19 @@
         }
 
         function showTTSButton() { document.getElementById('tts-btn').classList.remove('hidden'); }
-        function hideTTSButton() { document.getElementById('tts-btn').classList.add('hidden'); window.speechSynthesis.cancel(); }
+        function hideTTSButton() { document.getElementById('tts-btn').classList.add('hidden'); if(currentAudio) currentAudio.pause(); }
 
         // --- PHASE 1: INTERACTIVE TRAINING ---
         const lessons = [
             {
                 title: "Lesson 1: The 15-Character Minimum",
                 anim: "anim-angry-wave",
-                dialogue: "Eight characters? What is this, 2004? An 8-character password gets cracked before you even finish typing it. We are moving to 15.",
-                audioPrompt: "Say in an aggressive, edgy IT guy voice: Listen to me very carefully. An eight character password is a welcome mat for hackers. We are upgrading the university standard to fifteen characters immediately. Use a passphrase. String some weird words together. 'Angry Purple Hippo Battery' is infinitely better than Newman123! And for the love of sanity, do not use the word password.",
+                dialogue: "Eight characters? What is this, 2004? An 8-character password gets cracked before you even finish typing it. That is not an exaurration for some of you - I've seen you poking the keys with your index fingers one poiny pokey key at a time.  We are moving from 8 to 15.",
+                audioPrompt: "Say in an aggressive, edgy IT guy voice: Listen to me very carefully. An eight character password is a welcome mat for hackers. We are upgrading the university standard to fifteen characters immediately. Use a passphrase. String some weird words together or think of a sentence that you can remember. 'Angry Purple Hippo Battery' or 'Travis in the IT department is a gift to the university' is infinitely better than Newman123! And for the love of all things holy, do not use the word password or your own name or your dog's name that is also on 27 of your Facebook posts ih the past year. We love your dog too, just don't use him as your password.",
                 render: () => `
                     <div class="animate-fade-in">
                         <h2 class="text-2xl font-black text-slate-800 mb-4">Passphrases > Passwords</h2>
-                        <p class="text-slate-600 mb-4">You cannot proceed until you prove you know how to type 15 characters. Create a dummy passphrase below. Make it a sentence.</p>
+                        <p class="text-slate-600 mb-4">You cannot proceed until you prove you know how to type 15 characters. Create a dummy passphrase below. Make it a sentence or any random combination of words and characters that you will remember.  And don't forget, spaces count as characters too!  To you as a person, an empty space between two words represents zero but to a computer it is another character because your fingers pressed the SPACEBAR on the keyboard just like they pressed every other number or letter or symbol."
                         
                         <div class="bg-slate-100 border border-slate-300 rounded shadow-inner p-4 mb-6">
                             <label class="block text-sm font-bold text-slate-700 mb-2">New Password Entry:</label>
@@ -440,8 +428,8 @@
             {
                 title: "Lesson 2: The Hover Technique",
                 anim: "anim-smug",
-                dialogue: "Look, scammers lie. The 'Sender Name' is fake. The 'Link Text' is fake. Hover your mouse to see reality.",
-                audioPrompt: "Say in a sarcastic, exhausted IT-guy voice: Seriously, just hover your mouse over the link before you click it. It takes literally zero effort and prevents me from having to wipe ransomware off your hard drive. Stop blindly clicking things like a caffeinated squirrel.",
+                dialogue: "Look, scammers lie. The 'Sender Name' is fake. The 'Link Text' is fake. Lucky for you, I'm here to show you how to bust these bozos.  Hover your mouse to see reality.",
+                audioPrompt: "Say in a sarcastic, exhausted IT-guy voice: Seriously, just hover your mouse over the link before you click it. It takes literally zero effort and prevents me from having to wipe ransomware off your hard drive and you from having to tell that little fib that you 'never clicked on anything'. Do not blindly click things like a deranged caffeinated squirrel.",
                 render: () => `
                     <div class="animate-fade-in">
                         <h2 class="text-2xl font-black text-slate-800 mb-4">Hover to Discover</h2>
@@ -462,8 +450,8 @@
             {
                 title: "Lesson 3: Hang Up the Phone",
                 anim: "anim-panic",
-                dialogue: "If someone calls you asking for a password, hang up. Hang up violently. It is not rude, it is security.",
-                audioPrompt: "Say in a sarcastic, exhausted IT-guy voice: We have administrator rights. We literally own the network. Why on earth would we call you and ask for your password? Hang up the phone on these clowns. It is the one time you are legally allowed to be rude at work. Enjoy it.",
+                dialogue: "If someone calls you asking for a password, hang up. Hang up with some sass. It is not rude, it is security.",
+                audioPrompt: "Say in a sarcastic, exhausted IT-guy voice: We have administrator rights in the IT department already. We literally own the network and every device on it. Why on earth would we call you and ask for your password? If we wanted into your account, we would just take it.  We don't need your password to get into your accounts.  Lucky for you, we value your privacy as much as you do and think you're pretty neat.  Hang up the phone on these clowns. It is the one time you are legally allowed to be rude at school or work. Let that sass out for once and enjoy it.",
                 render: () => `
                     <div class="animate-fade-in">
                         <h2 class="text-2xl font-black text-slate-800 mb-4">Vishing (Voice Phishing)</h2>
@@ -481,8 +469,8 @@
             {
                 title: "Lesson 4: The Coffee Shop",
                 anim: "anim-facepalm",
-                dialogue: "You left your laptop open at Starbucks. You practically handed the keys to the kingdom to a hipster with a script.",
-                audioPrompt: "Say in a sarcastic, exhausted IT-guy voice: It takes exactly two keys to lock your screen. Windows plus L. Do it when you go to the bathroom. Do it when you get coffee. If you leave your laptop unlocked, I will personally change your desktop background to My Little Pony.",
+                dialogue: "You left your laptop open at Starbucks. You practically handed the keys to the kingdom to a hipster named Kai that smells like a ix of patchouli and Axe Body Spray and is offended by EVERYTHING that ANYONE says or does.",
+                audioPrompt: "Say in a sarcastic, exhausted IT-guy voice: It takes exactly two keys to lock your screen. Windows plus L. Do it when you go to the bathroom. Do it when you get coffee. Do it again after you drink the coffee and need to go back to the bathroom.  If you leave your laptop unlocked, I will personally make your desktop background an unchangeable giant zoomed-in closeup disturbingly high definition photo of my face and nostris with the caption 'I left my screen unlocked and all I got was this weird Newman IT guy screensaver'.",
                 render: () => `
                     <div class="animate-fade-in">
                         <h2 class="text-2xl font-black text-slate-800 mb-4">Physical Security</h2>
@@ -557,7 +545,7 @@
                 text: "The Newman Executive Staff recently rolled out a new password policy to stop our network from looking like Swiss cheese. What is the minimum length for a new password?",
                 options: [
                     { text: "8 Characters. It's always been 8.", score: -30, correct: false, feedback: "Wrong. 8 characters is dead. It can be brute-forced in seconds. Welcome to the future." },
-                    { text: "15 Characters. A passphrase.", score: 15, correct: true, feedback: "Correct. 15 characters minimum. 'I love eating pizza' is technically a hyper-secure password now." },
+                    { text: "15 Characters. A passphrase.", score: 15, correct: true, feedback: "Correct. 15 characters minimum. 'I love eating pizza' is technically a hyper-secure password now.  Don't forget spaces count too!" },
                     { text: "12 Characters.", score: -10, correct: false, feedback: "Close, but no cigar. The board approved 15. Start typing." }
                 ]
             },
@@ -565,33 +553,33 @@
                 animationClass: "anim-dead", dialogue: "Please use the tool I built for you. Please.", title: "The Memory Lapse",
                 text: "It is Monday morning. You forgot your 15-character password. What is the FIRST thing you should do?",
                 options: [
-                    { text: "Call the IT Helpdesk and complain loudly.", score: -25, correct: false, feedback: "I will literally block your number. Do not call us for this." },
-                    { text: "Use the new Self-Service Password Reset (SSPR) portal.", score: 15, correct: true, feedback: "YES! The SSPR tool! I spent weeks setting it up. You can reset it yourself via text or email without ever talking to me." },
-                    { text: "Ask Brenda in accounting if she remembers it.", score: -20, correct: false, feedback: "Why would Brenda know your password? Actually, don't answer that. I don't want to know." }
+                    { text: "Call the IT Helpdesk and complain loudly telling them there is no possible way that you, the person who cannot remember what they ate 15 minutes ago for breakfast, could have forgotten their password and so the entire system must be broken.", score: -25, correct: false, feedback: "I will literally block your number. Do not call us for this." },
+                    { text: "Use the new Self-Service Password Reset (SSPR) portal.", score: 15, correct: true, feedback: "YES! The SSPR tool! I spent weeks setting it up. You can reset it yourself via text or email without ever talking to me and trust me I know first hand that NO ONE likes talking to me first thing Monday morning." },
+                    { text: "Ask Brenda in accounting if she remembers it.", score: -20, correct: false, feedback: "Why would Brenda know your password? WHAT ELSE DOES BRENDA KNOW ABOUT US?  Actually, don't answer that. I don't want to know." }
                 ]
             },
             {
                 animationClass: "anim-angry-wave", dialogue: "I swear, if you fall for a scam older than the internet itself...", title: "The Wealthy Benefactor",
                 text: "Email from a foreign prince: He wants to donate $10 Million to the Newman Jets, but he needs your bank routing number.",
                 options: [
-                    { text: "Give him my routing number. The Jets need new uniforms.", score: -20, correct: false, feedback: "You absolute donkey. Your bank account was just drained." },
-                    { text: "Hit the 'Report Phishing' button.", score: 10, correct: true, feedback: "Wow. You exhibited basic survival instincts." }
+                    { text: "Give him my routing number. The Jets need new uniforms and the IT department needs new clown shoes.", score: -20, correct: false, feedback: "You silly little donkey. Your bank account was just drained." },
+                    { text: "Hit the 'Report Phishing' button.", score: 10, correct: true, feedback: "Wow. You exhibited basic survival instincts.  Keep it up, champ." }
                 ]
             },
             {
                 animationClass: "anim-suspicious", dialogue: "Remember Lesson 3? Please tell me you remember.", title: "The Phantom IT Tech",
                 text: "Phone rings. 'Hey, it's Dave from IT. Give me your password so I can back up your email.'",
                 options: [
-                    { text: "Give 'Dave' the password. He sounds stressed.", score: -25, correct: false, feedback: "We have admin rights. We don't need your password. You just gave a hacker access." },
-                    { text: "Hang up directly in his face.", score: 10, correct: true, feedback: "Yes. Hanging up on people is my favorite part of the job." }
+                    { text: "Give 'Dave' the password. He sounds stressed.", score: -25, correct: false, feedback: "We have admin rights. We don't need your password. You just gave a hacker access.  Plus, you can't trust anyone named Dave (we're looking at you, Dave, in the athletics department)." },
+                    { text: "Hang up directly in his face and don't forget that sass.", score: 10, correct: true, feedback: "Yes. Hanging up on people is my favorite part of the job." }
                 ]
             },
             {
                 animationClass: "anim-twitch", dialogue: "My eye is twitching. Please read the prompt.", title: "The 3:00 AM Wakeup Call",
                 text: "You are dead asleep. Your phone buzzes 45 times with an Authenticator prompt.",
                 options: [
-                    { text: "Hit 'Approve' once so it shuts up.", score: -35, correct: false, feedback: "NO. That's 'MFA Fatigue'. You just traded the university's security for sleep." },
-                    { text: "Deny it, report it as fraud, and change my password.", score: 10, correct: true, feedback: "Smite them with the fraud button. Excellent." }
+                    { text: "Hit 'Approve' once so it shuts up.", score: -35, correct: false, feedback: "NO. That's 'MFA Fatigue'. You just traded the university's security for sleep which is relateable because we also love naptime, but not at the expense of the entire Newman network." },
+                    { text: "Deny it, report it as fraud, and change my password.", score: 10, correct: true, feedback: "Smite them with the fraud button. mmmmmmmm, yes....Excellent." }
                 ]
             }
         ];
@@ -599,13 +587,13 @@
         // --- ROUTING / FLOW CONTROLLER ---
         function renderIntro() {
             currentState = 'intro';
-            setAnimation('anim-sigh', "Management says I have to 'educate' you before you take the test. Let's just get this over with.");
+            setAnimation('anim-sigh', "Management says I have to 'educate' you before you take the test. I know that you know that I know that you know that I know that you know that Carol in accounting knows that you khow it so, let's just get this over with.");
             hideTTSButton();
             contentArea.innerHTML = `
                 <div class="animate-fade-in text-left">
                     <h2 class="text-3xl font-black text-slate-800 mb-4 tracking-tight uppercase">Mandatory Education</h2>
                     <p class="text-slate-600 mb-6 font-medium">
-                        Welcome to the Newman IT Security Assessment. Before I let you take the test and inevitably ruin my day, we are going to do some interactive exercises. 
+                        Welcome to the Newman IT Security Assessment. Before I let you take the test and inevitably curse my name for IT requests all in the same day, we are going to do some interactive exercises. And since your on-site IT guys are always so nice (particularly Travis from what I hear), I'm going to be that typical techie know-it-all that needs an attitude adjustment like we've all come to know and love in every IT department at every job, so strap in."   
                     </p>
                     <button onclick="startTraining()" class="bg-slate-800 hover:bg-slate-900 text-white font-black py-4 px-8 rounded-xl shadow transition w-full md:w-auto border-b-4 border-slate-600">
                         START LESSONS ➔
@@ -633,13 +621,13 @@
 
         function renderTransition() {
             currentState = 'transition'; hideTTSButton();
-            setAnimation('anim-smug', "Alright, training wheels are off. Don't embarrass me.");
+            setAnimation('anim-smug', "Alright, training wheels are off. Don't embarrass me, or at least no more than I already embarass myself.");
             contentArea.innerHTML = `
                 <div class="animate-fade-in text-left">
                     <h2 class="text-3xl font-black text-slate-800 mb-4 tracking-tight uppercase">Exam Time</h2>
                     <p class="text-slate-600 mb-6 font-medium">
                         You've completed the interactive modules. Now for the actual test. 
-                        Your "Will to Live" is at 100%. If you hit 0%, I am confiscating your keyboard.
+                        Your "Will to Live" is at 100%. If you hit 0%, I am confiscating your keyboard and instead of a laptop you will get an iPhone 4 with a cracked screen.  And no one knows the passcode to unlock it."
                     </p>
                     <button onclick="startQuiz()" class="bg-red-600 hover:bg-red-700 text-white font-black py-4 px-8 rounded-xl shadow transition w-full md:w-auto border-b-4 border-red-800">
                         BEGIN SUFFERING ➔
@@ -724,14 +712,15 @@
             scoreContainer.style.display = 'none';
             
             if (score >= 70) {
-                setAnimation('anim-smug', "Look at that. You passed. Now finish the trifecta so I can close your ticket.");
+                setAnimation('anim-smug', "Look at that. You passed. Now finish the trifecta setting yourself up in the new and super convenient self-service password reset (SSPR) tool then changing your current password to the required 15-character passPHRASE, so I can close your ticket and you can get to that well-deserved cursing of the IT department.");
                 
                 contentArea.innerHTML = `
                     <div class="text-left animate-fade-in w-full">
                         <h2 class="text-4xl font-black text-newman-navy mb-2 uppercase">Assessment Passed</h2>
-                        <p class="text-lg text-slate-700 mb-6 font-semibold">You survived the training. But we aren't done yet. To secure the network and save me from resetting your password at 3 PM every Friday, complete the final two steps below.</p>
+                        <p class="text-lg text-slate-700 mb-6 font-semibold">You survived the training. But we aren't done yet. To secure the network and save me from resetting your password at 3 PM every Friday (lookin' at you, Terry in Admissions), complete the final two steps below.</p>
                         
                         <div class="space-y-4 mb-8">
+                            <!-- Step 1 Complete -->
                             <div class="bg-emerald-50 border-2 border-emerald-300 rounded-xl p-4 flex items-center justify-between">
                                 <div class="flex items-center gap-4">
                                     <div class="bg-emerald-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">1</div>
@@ -740,6 +729,7 @@
                                 <div class="text-2xl">✅</div>
                             </div>
 
+                            <!-- Step 2 SSPR -->
                             <div class="bg-white border-2 border-slate-300 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between shadow-sm">
                                 <div class="flex items-center gap-4 mb-4 sm:mb-0 w-full">
                                     <div class="bg-slate-800 text-white rounded-full min-w-[2rem] w-8 h-8 flex items-center justify-center font-bold">2</div>
@@ -751,6 +741,7 @@
                                 <button onclick="alert('This will redirect the user to: https://aka.ms/ssprsetup')" class="w-full sm:w-auto bg-newman-blue hover:bg-blue-600 text-white font-bold py-2 px-6 rounded shadow whitespace-nowrap transition">Enroll Now ➔</button>
                             </div>
 
+                            <!-- Step 3 Reset Password -->
                             <div class="bg-white border-2 border-slate-300 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between shadow-sm">
                                 <div class="flex items-center gap-4 mb-4 sm:mb-0 w-full">
                                     <div class="bg-slate-800 text-white rounded-full min-w-[2rem] w-8 h-8 flex items-center justify-center font-bold">3</div>
