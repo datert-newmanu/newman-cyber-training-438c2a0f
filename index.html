@@ -128,7 +128,6 @@
 
     <div id="app-container" class="glass-panel rounded-2xl shadow-2xl w-full max-w-5xl overflow-hidden relative z-10 border-t-8 border-newman-blue">
         
-        <!-- Header -->
         <div class="bg-slate-900 text-white p-4 flex justify-between items-center px-6">
             <div>
                 <h1 class="text-2xl font-black tracking-tight uppercase text-newman-blue" id="header-title">IT Survival Training</h1>
@@ -141,7 +140,6 @@
         </div>
 
         <div class="flex flex-col md:flex-row p-6 min-h-[550px]">
-            <!-- THE IT GUY COLUMN -->
             <div class="w-full md:w-1/3 flex flex-col items-center justify-start border-b md:border-b-0 md:border-r border-slate-200 pb-6 md:pb-0 md:pr-6">
                 <div id="character" class="character-container">
                     <div class="geek-arm-l"></div>
@@ -170,7 +168,6 @@
                     <div id="geek-dialogue" class="text-sm font-semibold text-slate-700 mt-2 italic">
                         "Welcome. Please don't break anything. I haven't slept since 2019."
                     </div>
-                    <!-- Audio Button -->
                     <button id="tts-btn" onclick="playPodcast()" class="hidden mt-3 w-full bg-indigo-100 hover:bg-indigo-200 text-indigo-700 text-xs font-bold py-2 px-3 rounded shadow-sm border border-indigo-200 transition flex items-center justify-center gap-2">
                         <span>🎧</span> Listen to Audio Rant
                     </button>
@@ -178,10 +175,8 @@
                 </div>
             </div>
 
-            <!-- CONTENT COLUMN -->
             <div id="content-area" class="w-full md:w-2/3 flex flex-col justify-center pl-0 md:pl-8 mt-6 md:mt-0">
-                <!-- Content Injected via JS -->
-            </div>
+                </div>
         </div>
     </div>
 
@@ -192,9 +187,11 @@
         let currentQuizStage = 0;
         let score = 100;
 
+        // --- DOM HELPERS ---
+        let contentArea, character, geekDialogue, scoreContainer, scoreDisplay, headerTitle, headerSubtitle;
+
         // --- GEMINI API SETUP ---
         const apiKey = ""; 
-        
         const TEXT_MODEL = "gemini-2.5-flash-preview-09-2025";
         const TEXT_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${TEXT_MODEL}:generateContent?key=${apiKey}`;
 
@@ -217,7 +214,7 @@
 
         function playPodcast() {
             const btn = document.getElementById('tts-btn');
-            btn.classList.add('opacity-50', 'cursor-not-allowed');
+            if (btn) btn.classList.add('opacity-50', 'cursor-not-allowed');
 
             let promptText = "";
             if (currentState === 'training') promptText = lessons[currentLessonIndex].audioPrompt;
@@ -226,23 +223,21 @@
             // Strip out the prompt instructions so it only speaks the actual dialogue
             promptText = promptText.replace(/Say in.*?voice:\s*/i, '');
 
-            // Use the Browser's Native TTS Engine (Zero API calls, instant playback)
-            const utterance = new SpeechSynthesisUtterance(promptText);
-            
-            // Drop the pitch to sound like an exhausted IT Guy
-            utterance.pitch = 0.7; 
-            utterance.rate = 1.0;
+            // Use the Browser's Native TTS Engine with safety check
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(promptText);
+                utterance.pitch = 0.7; 
+                utterance.rate = 1.0;
 
-            // Trigger the angry waving animation while he talks
-            utterance.onstart = () => { character.classList.add('anim-angry-wave'); };
-            utterance.onend = () => { 
-                character.classList.remove('anim-angry-wave'); 
-                btn.classList.remove('opacity-50', 'cursor-not-allowed');
-            };
+                utterance.onstart = () => { if (character) character.classList.add('anim-angry-wave'); };
+                utterance.onend = () => { 
+                    if (character) character.classList.remove('anim-angry-wave'); 
+                    if (btn) btn.classList.remove('opacity-50', 'cursor-not-allowed');
+                };
 
-            // Stop any overlapping audio and play the new rant
-            window.speechSynthesis.cancel();
-            window.speechSynthesis.speak(utterance);
+                window.speechSynthesis.cancel();
+                window.speechSynthesis.speak(utterance);
+            }
         }
         
         async function begForHint() {
@@ -250,10 +245,13 @@
             const hintBox = document.getElementById('hint-box');
             const hintText = document.getElementById('hint-text');
             
-            hintBtn.disabled = true; hintBtn.classList.add('opacity-50', 'cursor-not-allowed');
-            hintBtn.innerHTML = "✨ Contacting the void...";
-            hintBox.classList.remove('hidden');
-            hintText.innerHTML = "<em>IT Guy is aggressively sighing and typing...</em>";
+            if (hintBtn) {
+                hintBtn.disabled = true; 
+                hintBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                hintBtn.innerHTML = "✨ Contacting the void...";
+            }
+            if (hintBox) hintBox.classList.remove('hidden');
+            if (hintText) hintText.innerHTML = "<em>IT Guy is aggressively sighing and typing...</em>";
             
             setAnimation('anim-typing', "You interrupted my coffee break for THIS?");
 
@@ -274,21 +272,27 @@
                 const hint = result.candidates?.[0]?.content?.parts?.[0]?.text;
                 if (!hint) throw new Error("AI response blocked or empty.");
                 
-                hintText.innerHTML = `<strong>IT Guy:</strong> ${hint}`;
+                if (hintText) hintText.innerHTML = `<strong>IT Guy:</strong> ${hint}`;
                 setAnimation('anim-sigh', "Read it slowly. Sound out the words if you have to.");
-                hintBtn.innerHTML = "✨ Hint Deployed";
+                if (hintBtn) hintBtn.innerHTML = "✨ Hint Deployed";
             } catch (e) {
                 console.error("Hint Error:", e);
-                hintText.innerHTML = "<em>Error: Network timeout or AI blocked. The IT Guy ignored your ticket.</em>";
-                hintBtn.innerHTML = "✨ Beg for a Hint";
-                hintBtn.disabled = false; hintBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                if (hintText) hintText.innerHTML = "<em>Error: Network timeout or AI blocked. The IT Guy ignored your ticket.</em>";
+                if (hintBtn) {
+                    hintBtn.innerHTML = "✨ Beg for a Hint";
+                    hintBtn.disabled = false; 
+                    hintBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                }
             }
         }
 
         async function generateNightmare() {
             const genBtn = document.getElementById('gen-nightmare-btn');
-            genBtn.disabled = true; genBtn.classList.add('opacity-50', 'animate-pulse');
-            genBtn.innerHTML = "✨ Concocting fresh horrors...";
+            if (genBtn) {
+                genBtn.disabled = true; 
+                genBtn.classList.add('opacity-50', 'animate-pulse');
+                genBtn.innerHTML = "✨ Concocting fresh horrors...";
+            }
             
             setAnimation('anim-typing', "Hold on, I'm writing a custom nightmare specifically for you.");
 
@@ -323,12 +327,15 @@
                  newScenario.options.sort(() => Math.random() - 0.5);
                  scenarios.push(newScenario);
                  currentQuizStage = scenarios.length - 1; 
-                 scoreContainer.style.display = 'block'; 
+                 if (scoreContainer) scoreContainer.style.display = 'block'; 
                  renderQuizScenario();
             } catch(e) {
                 console.error("Nightmare Error:", e);
-                genBtn.innerHTML = "✨ Failed. Try again.";
-                genBtn.disabled = false; genBtn.classList.remove('opacity-50', 'animate-pulse');
+                if (genBtn) {
+                    genBtn.innerHTML = "✨ Failed. Try again.";
+                    genBtn.disabled = false; 
+                    genBtn.classList.remove('opacity-50', 'animate-pulse');
+                }
                 setAnimation('anim-angry-wave', "Great, you broke the AI too.");
             }
         }
@@ -338,12 +345,14 @@
             const roastBox = document.getElementById('roast-box');
             const roastText = document.getElementById('roast-text');
             
-            roastBtn.disabled = true;
-            roastBtn.classList.add('opacity-50', 'cursor-not-allowed', 'animate-pulse');
-            roastBtn.innerHTML = "✨ Calculating your deserved level of IT sarcasm...";
+            if (roastBtn) {
+                roastBtn.disabled = true;
+                roastBtn.classList.add('opacity-50', 'cursor-not-allowed', 'animate-pulse');
+                roastBtn.innerHTML = "✨ Calculating your deserved level of IT sarcasm...";
+            }
             
-            roastBox.classList.remove('hidden');
-            roastText.innerHTML = "<em>IT Guy is aggressively sighing and preparing to destroy your self-esteem...</em>";
+            if (roastBox) roastBox.classList.remove('hidden');
+            if (roastText) roastText.innerHTML = "<em>IT Guy is aggressively sighing and preparing to destroy your self-esteem...</em>";
             
             setAnimation('anim-typing', "Oh, you want my honest opinion? Big mistake.");
 
@@ -366,38 +375,48 @@
                 const roast = result.candidates?.[0]?.content?.parts?.[0]?.text;
                 if (!roast) throw new Error("AI response blocked or empty.");
                 
-                roastText.innerHTML = `<strong>IT Guy's Official Verdict:</strong> ${roast}`;
+                if (roastText) roastText.innerHTML = `<strong>IT Guy's Official Verdict:</strong> ${roast}`;
                 if (score >= 70) setAnimation('anim-smug', "There. I gave you attention. Now close my ticket.");
                 else setAnimation('anim-facepalm', "I'm printing this roast and putting it on the fridge in the server room and on every bulletin board in every building on campus.");
                 
-                roastBtn.innerHTML = "✨ Roasted";
-                roastBtn.classList.remove('animate-pulse');
+                if (roastBtn) {
+                    roastBtn.innerHTML = "✨ Roasted";
+                    roastBtn.classList.remove('animate-pulse');
+                }
             } catch (e) {
                 console.error("Roast Error:", e);
-                roastText.innerHTML = "<em>Error: Network timeout or AI blocked. The IT Guy doesn't even have the energy to insult you right now.</em>";
-                roastBtn.innerHTML = "✨ Roast My Performance";
-                roastBtn.disabled = false; roastBtn.classList.remove('opacity-50', 'cursor-not-allowed', 'animate-pulse');
+                if (roastText) roastText.innerHTML = "<em>Error: Network timeout or AI blocked. The IT Guy doesn't even have the energy to insult you right now.</em>";
+                if (roastBtn) {
+                    roastBtn.innerHTML = "✨ Roast My Performance";
+                    roastBtn.disabled = false; 
+                    roastBtn.classList.remove('opacity-50', 'cursor-not-allowed', 'animate-pulse');
+                }
             }
         }
 
-        // --- DOM HELPERS ---
-        const contentArea = document.getElementById('content-area');
-        const character = document.getElementById('character');
-        const geekDialogue = document.getElementById('geek-dialogue');
-        const scoreContainer = document.getElementById('score-container');
-        const scoreDisplay = document.getElementById('score-display');
-        const headerTitle = document.getElementById('header-title');
-        const headerSubtitle = document.getElementById('header-subtitle');
-
         function setAnimation(animClass, dialogue) {
-            character.className = "character-container"; 
-            void character.offsetWidth; // Reflow
-            if (animClass) character.classList.add(animClass);
-            if (dialogue) geekDialogue.textContent = `"${dialogue}"`;
+            if (character) {
+                character.className = "character-container"; 
+                void character.offsetWidth; // Reflow
+                if (animClass) character.classList.add(animClass);
+            }
+            if (geekDialogue && dialogue) {
+                geekDialogue.textContent = `"${dialogue}"`;
+            }
         }
 
-        function showTTSButton() { document.getElementById('tts-btn').classList.remove('hidden'); }
-        function hideTTSButton() { document.getElementById('tts-btn').classList.add('hidden'); window.speechSynthesis.cancel(); }
+        function showTTSButton() { 
+            const btn = document.getElementById('tts-btn');
+            if (btn) btn.classList.remove('hidden'); 
+        }
+        
+        function hideTTSButton() { 
+            const btn = document.getElementById('tts-btn');
+            if (btn) btn.classList.add('hidden'); 
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel(); 
+            }
+        }
 
         // --- PHASE 1: INTERACTIVE TRAINING ---
         const lessons = [
@@ -409,7 +428,7 @@
                 render: () => `
                     <div class="animate-fade-in">
                         <h2 class="text-2xl font-black text-slate-800 mb-4">Passphrases > Passwords</h2>
-                        <p class="text-slate-600 mb-4">You cannot proceed until you prove you know how to type 15 characters. Create a dummy passphrase below. Make it a sentence or any random combination of words and characters that you will remember.  And don't forget, spaces count as characters too!  String some weird words together or think of a sentence that only you will remember. 'Angry Purple Hippo Battery' or 'Travis in the IT department is an absolute gift to the university' is infinitely better than Newman123! And for the love of all things holy, do not use the word password or your name or your dog's name that's in 27 of your Facebook posts in the past year. We love your dog too, just don't use him as your password.",</p>
+                        <p class="text-slate-600 mb-4">You cannot proceed until you prove you know how to type 15 characters. Create a dummy passphrase below. Make it a sentence or any random combination of words and characters that you will remember.  And don't forget, spaces count as characters too!  String some weird words together or think of a sentence that only you will remember. 'Angry Purple Hippo Battery' or 'Travis in the IT department is an absolute gift to the university' is infinitely better than Newman123! And for the love of all things holy, do not use the word password or your name or your dog's name that's in 27 of your Facebook posts in the past year. We love your dog too, just don't use him as your password.</p>
                         
                         <div class="bg-slate-100 border border-slate-300 rounded shadow-inner p-4 mb-6">
                             <label class="block text-sm font-bold text-slate-700 mb-2">New Password Entry:</label>
@@ -431,7 +450,7 @@
                 render: () => `
                     <div class="animate-fade-in">
                         <h2 class="text-2xl font-black text-slate-800 mb-4">Hover to Discover</h2>
-                        <p class="text-slate-600 mb-6">Interact with the fake email below. Hover over the bold texts to reveal their true, sinister nature.  It takes literally zero effort and prevents me from having to wipe ransomware off your hard drive and you from having to tell that little fib that you 'never clicked on anything'. Do not blindly click things like a deranged caffeinated squirrel. Stop, think, and hover."</p>
+                        <p class="text-slate-600 mb-6">Interact with the fake email below. Hover over the bold texts to reveal their true, sinister nature.  It takes literally zero effort and prevents me from having to wipe ransomware off your hard drive and you from having to tell that little fib that you 'never clicked on anything'. Do not blindly click things like a deranged caffeinated squirrel. Stop, think, and hover.</p>
                         
                         <div class="bg-white border border-slate-300 rounded shadow-md p-4 mb-6">
                             <div class="border-b border-slate-200 pb-2 mb-4">
@@ -452,8 +471,9 @@
                 audioPrompt: "Say in a sarcastic, exhausted IT-guy voice: We have administrator rights in the IT department already. There is absolutely no scenario that we would need you to tell us your password.  If we want into an account, we can do it all on our own without a password.",
                 render: () => `
                     <div class="animate-fade-in">
+                        <h2 class="text-2xl font-black text-slate-800 mb-4">Vishing (Voice Phishing)</h2>
                         <p class="text-slate-600 mb-6">Attackers will call pretending to be the Helpdesk. Your goal is to smash the 'Hang Up' button to neutralize the threat.
-                        We literally own the network. If we wanted into your account, we would just take it.  We don't need your password to do that.  Lucky for you, we value your privacy as much as you do and we think you're pretty neat.  Hang up the phone on these clowns. It is the one time you are legally allowed to be rude at school or work. Let that sass out for once and enjoy it."</p>
+                        We literally own the network. If we wanted into your account, we would just take it.  We don't need your password to do that.  Lucky for you, we value your privacy as much as you do and we think you're pretty neat.  Hang up the phone on these clowns. It is the one time you are legally allowed to be rude at school or work. Let that sass out for once and enjoy it.</p>
                         <div class="bg-slate-800 border-4 border-slate-900 rounded-3xl shadow-xl p-6 mb-6 max-w-xs mx-auto text-center" id="phone-ui">
                             <div class="text-4xl mb-4 ringing">📱</div>
                             <p class="text-green-400 text-sm font-bold mb-1 animate-pulse">INCOMING CALL</p>
@@ -495,43 +515,59 @@
             const statusLabel = document.getElementById('pass-status');
             const btn = document.getElementById('next-btn-pass');
 
-            countLabel.textContent = `Length: ${input.length} / 15`;
+            if (countLabel) countLabel.textContent = `Length: ${input.length} / 15`;
 
             if (input.length >= 15) {
-                countLabel.className = "text-emerald-600";
-                statusLabel.className = "text-emerald-600 uppercase tracking-widest";
-                statusLabel.textContent = "ACCEPTABLE";
-                btn.disabled = false;
-                btn.className = "bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-xl shadow transition w-full md:w-auto";
+                if (countLabel) countLabel.className = "text-emerald-600";
+                if (statusLabel) {
+                    statusLabel.className = "text-emerald-600 uppercase tracking-widest";
+                    statusLabel.textContent = "ACCEPTABLE";
+                }
+                if (btn) {
+                    btn.disabled = false;
+                    btn.className = "bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-xl shadow transition w-full md:w-auto";
+                }
                 setAnimation('anim-smug', "Look at that. You can follow basic instructions. I'm so proud.");
             } else {
-                countLabel.className = "text-red-500";
-                statusLabel.className = "text-red-500 uppercase tracking-widest";
-                statusLabel.textContent = "PATHETIC";
-                btn.disabled = true;
-                btn.className = "bg-slate-300 text-slate-500 font-bold py-3 px-6 rounded-xl shadow w-full md:w-auto cursor-not-allowed";
+                if (countLabel) countLabel.className = "text-red-500";
+                if (statusLabel) {
+                    statusLabel.className = "text-red-500 uppercase tracking-widest";
+                    statusLabel.textContent = "PATHETIC";
+                }
+                if (btn) {
+                    btn.disabled = true;
+                    btn.className = "bg-slate-300 text-slate-500 font-bold py-3 px-6 rounded-xl shadow w-full md:w-auto cursor-not-allowed";
+                }
                 setAnimation('anim-sigh', "Keep typing. 15 characters minimum. I have all day.");
             }
         }
 
         function slamPhone() {
             const phoneUI = document.getElementById('phone-ui');
-            phoneUI.innerHTML = `
-                <div class="text-4xl mb-4">📞</div>
-                <p class="text-red-500 text-xl font-black mb-4 uppercase">Call Terminated</p>
-                <button onclick="nextLesson()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-xl shadow transition w-full">Great Success ➔</button>
-            `;
+            if (phoneUI) {
+                phoneUI.innerHTML = `
+                    <div class="text-4xl mb-4">📞</div>
+                    <p class="text-red-500 text-xl font-black mb-4 uppercase">Call Terminated</p>
+                    <button onclick="nextLesson()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-xl shadow transition w-full">Great Success ➔</button>
+                `;
+            }
             setAnimation('anim-smug', "Good. That felt nice, didn't it?  Mmmmmmm.....yeah it did.");
         }
 
         function lockLaptop(element) {
             const screen = document.getElementById('laptop-screen');
-            screen.className = "absolute inset-2 bg-slate-900 rounded flex items-center justify-center shadow-inner";
-            screen.innerHTML = `<p class="text-slate-500 font-black tracking-widest">LOCKED</p>`;
-            document.getElementById('lock-msg').classList.remove('hidden');
+            const lockMsg = document.getElementById('lock-msg');
             const btn = document.getElementById('next-btn-3');
-            btn.disabled = false;
-            btn.className = "bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-xl shadow transition w-full md:w-auto";
+
+            if (screen) {
+                screen.className = "absolute inset-2 bg-slate-900 rounded flex items-center justify-center shadow-inner";
+                screen.innerHTML = `<p class="text-slate-500 font-black tracking-widest">LOCKED</p>`;
+            }
+            if (lockMsg) lockMsg.classList.remove('hidden');
+            if (btn) {
+                btn.disabled = false;
+                btn.className = "bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-xl shadow transition w-full md:w-auto";
+            }
             setAnimation('anim-sigh', "Thank you. Was that so hard?");
         }
 
@@ -581,22 +617,23 @@
             }
         ];
 
-        // --- ROUTING / FLOW CONTROLLER ---
         function renderIntro() {
             currentState = 'intro';
             setAnimation('anim-sigh', "Management says I have to 'educate' you before you take the test. I know that you know that I know that you know that I know that you know that Carol in accounting knows that you know it so, let's just get this over with so we can all resume our daily lives as they have always meant to be: collectively complaining about HR instead of IT.");
             hideTTSButton();
-            contentArea.innerHTML = `
-                <div class="animate-fade-in text-left">
-                    <h2 class="text-3xl font-black text-slate-800 mb-4 tracking-tight uppercase">Mandatory Education</h2>
-                    <p class="text-slate-600 mb-6 font-medium">
-                        Welcome to the Newman IT Security Assessment. Before I let you take the test and inevitably curse my name for *GASP* TWO IT requests in the same day (who do these guys think they are, The President?), we are going to do some interactive exercises. And since your on-site IT guys are always so nice (particularly one who goes by "Travis" is the rumor), I'm going to be that typical techie know-it-all that needs an attitude adjustment in every IT department at every company since the beginning of time, so strap in.
-                    </p>
-                    <button onclick="startTraining()" class="bg-slate-800 hover:bg-slate-900 text-white font-black py-4 px-8 rounded-xl shadow transition w-full md:w-auto border-b-4 border-slate-600">
-                        START LESSONS ➔
-                    </button>
-                </div>
-            `;
+            if (contentArea) {
+                contentArea.innerHTML = `
+                    <div class="animate-fade-in text-left">
+                        <h2 class="text-3xl font-black text-slate-800 mb-4 tracking-tight uppercase">Mandatory Education</h2>
+                        <p class="text-slate-600 mb-6 font-medium">
+                            Welcome to the Newman IT Security Assessment. Before I let you take the test and inevitably curse my name for *GASP* TWO IT requests in the same day (who do these guys think they are, The President?), we are going to do some interactive exercises. And since your on-site IT guys are always so nice (particularly one who goes by "Travis" is the rumor), I'm going to be that typical techie know-it-all that needs an attitude adjustment in every IT department at every company since the beginning of time, so strap in.
+                        </p>
+                        <button onclick="startTraining()" class="bg-slate-800 hover:bg-slate-900 text-white font-black py-4 px-8 rounded-xl shadow transition w-full md:w-auto border-b-4 border-slate-600">
+                            START LESSONS ➔
+                        </button>
+                    </div>
+                `;
+            }
         }
 
         function startTraining() {
@@ -607,7 +644,7 @@
             const lesson = lessons[currentLessonIndex];
             setAnimation(lesson.anim, lesson.dialogue);
             showTTSButton();
-            contentArea.innerHTML = lesson.render();
+            if (contentArea) contentArea.innerHTML = lesson.render();
         }
 
         function nextLesson() {
@@ -619,34 +656,39 @@
         function renderTransition() {
             currentState = 'transition'; hideTTSButton();
             setAnimation('anim-smug', "Alright, training wheels are off. Don't embarrass me, or at least no more than I already embarrass myself.");
-            contentArea.innerHTML = `
-                <div class="animate-fade-in text-left">
-                    <h2 class="text-3xl font-black text-slate-800 mb-4 tracking-tight uppercase">Exam Time</h2>
-                    <p class="text-slate-600 mb-6 font-medium">
-                        You've completed the interactive modules. Now for the actual test. 
-                        Your "Will to Live" is at 100%. If you hit 0%, I am confiscating your keyboard and instead of a laptop you will get an iPhone 4 with a cracked screen.  And no one knows the passcode to unlock it.
-                    </p>
-                    <button onclick="startQuiz()" class="bg-red-600 hover:bg-red-700 text-white font-black py-4 px-8 rounded-xl shadow transition w-full md:w-auto border-b-4 border-red-800">
-                        BEGIN SUFFERING ➔
-                    </button>
-                </div>
-            `;
+            if (contentArea) {
+                contentArea.innerHTML = `
+                    <div class="animate-fade-in text-left">
+                        <h2 class="text-3xl font-black text-slate-800 mb-4 tracking-tight uppercase">Exam Time</h2>
+                        <p class="text-slate-600 mb-6 font-medium">
+                            You've completed the interactive modules. Now for the actual test. 
+                            Your "Will to Live" is at 100%. If you hit 0%, I am confiscating your keyboard and instead of a laptop you will get an iPhone 4 with a cracked screen.  And no one knows the passcode to unlock it.
+                        </p>
+                        <button onclick="startQuiz()" class="bg-red-600 hover:bg-red-700 text-white font-black py-4 px-8 rounded-xl shadow transition w-full md:w-auto border-b-4 border-red-800">
+                            BEGIN SUFFERING ➔
+                        </button>
+                    </div>
+                `;
+            }
         }
 
         function startQuiz() {
             currentState = 'quiz'; currentQuizStage = 0; score = 100; updateScore(0);
-            scoreContainer.style.display = 'block';
-            headerTitle.textContent = "IT Survival Simulator"; headerSubtitle.textContent = "IF YOU FAIL, WE JUDGE YOU.";
+            if (scoreContainer) scoreContainer.style.display = 'block';
+            if (headerTitle) headerTitle.textContent = "IT Survival Simulator"; 
+            if (headerSubtitle) headerSubtitle.textContent = "IF YOU FAIL, WE JUDGE YOU.";
             hideTTSButton(); renderQuizScenario();
         }
 
         function updateScore(points) {
             score += points;
             if (score > 100) score = 100; if (score < 0) score = 0;
-            scoreDisplay.textContent = score + "%";
-            if (score < 30) scoreDisplay.className = "text-2xl font-black text-red-500 font-mono";
-            else if (score < 70) scoreDisplay.className = "text-2xl font-black text-yellow-500 font-mono";
-            else scoreDisplay.className = "text-2xl font-black text-emerald-400 font-mono";
+            if (scoreDisplay) {
+                scoreDisplay.textContent = score + "%";
+                if (score < 30) scoreDisplay.className = "text-2xl font-black text-red-500 font-mono";
+                else if (score < 70) scoreDisplay.className = "text-2xl font-black text-yellow-500 font-mono";
+                else scoreDisplay.className = "text-2xl font-black text-emerald-400 font-mono";
+            }
         }
 
         function renderQuizScenario() {
@@ -658,20 +700,22 @@
                 optionsHtml += `<button onclick="handleAnswer(${index})" class="answer-btn text-left w-full bg-white text-slate-700 font-bold py-3 px-5 rounded-xl mb-3 shadow-sm text-sm sm:text-base">${opt.text}</button>`;
             });
 
-            contentArea.innerHTML = `
-                <div class="animate-fade-in w-full">
-                    <div class="flex justify-between items-center mb-2">
-                        <span class="text-xs font-bold text-slate-400 tracking-widest uppercase">Question ${currentQuizStage + 1} of ${scenarios.length}</span>
-                        <button id="hint-btn" onclick="begForHint()" class="text-xs font-bold bg-indigo-100 hover:bg-indigo-200 text-indigo-700 py-1 px-3 rounded-full transition shadow-sm border border-indigo-200">✨ Beg for a Hint</button>
+            if (contentArea) {
+                contentArea.innerHTML = `
+                    <div class="animate-fade-in w-full">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-xs font-bold text-slate-400 tracking-widest uppercase">Question ${currentQuizStage + 1} of ${scenarios.length}</span>
+                            <button id="hint-btn" onclick="begForHint()" class="text-xs font-bold bg-indigo-100 hover:bg-indigo-200 text-indigo-700 py-1 px-3 rounded-full transition shadow-sm border border-indigo-200">✨ Beg for a Hint</button>
+                        </div>
+                        <div id="hint-box" class="hidden bg-indigo-50 border border-indigo-200 rounded-lg p-3 mb-3 shadow-inner">
+                            <p id="hint-text" class="text-sm text-indigo-900 font-medium"></p>
+                        </div>
+                        <h2 class="text-2xl font-black text-slate-800 mb-3 mt-2">${scenario.title}</h2>
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 mb-5 shadow-inner text-slate-700 font-medium">${scenario.text}</div>
+                        <div class="flex flex-col">${optionsHtml}</div>
                     </div>
-                    <div id="hint-box" class="hidden bg-indigo-50 border border-indigo-200 rounded-lg p-3 mb-3 shadow-inner">
-                        <p id="hint-text" class="text-sm text-indigo-900 font-medium"></p>
-                    </div>
-                    <h2 class="text-2xl font-black text-slate-800 mb-3 mt-2">${scenario.title}</h2>
-                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 mb-5 shadow-inner text-slate-700 font-medium">${scenario.text}</div>
-                    <div class="flex flex-col">${optionsHtml}</div>
-                </div>
-            `;
+                `;
+            }
         }
 
         function handleAnswer(selectedIndex) {
@@ -685,17 +729,19 @@
             const headerText = opt.correct ? 'Acceptable.' : 'Tragic.';
             const boxColor = opt.correct ? 'bg-emerald-50 border-emerald-200' : 'bg-red-50 border-red-200';
 
-            contentArea.innerHTML = `
-                <div class="animate-fade-in py-2">
-                    <h2 class="text-3xl font-black ${headerColor} mb-4 uppercase">${headerText}</h2>
-                    <div class="${boxColor} border-2 rounded-xl p-5 mb-6 shadow-sm">
-                        <p class="text-lg text-slate-800 font-bold">${opt.feedback}</p>
+            if (contentArea) {
+                contentArea.innerHTML = `
+                    <div class="animate-fade-in py-2">
+                        <h2 class="text-3xl font-black ${headerColor} mb-4 uppercase">${headerText}</h2>
+                        <div class="${boxColor} border-2 rounded-xl p-5 mb-6 shadow-sm">
+                            <p class="text-lg text-slate-800 font-bold">${opt.feedback}</p>
+                        </div>
+                        <button onclick="nextQuizStage()" class="bg-slate-800 hover:bg-slate-900 text-white font-black py-4 px-8 rounded-xl shadow transition w-full md:w-auto border-b-4 border-slate-600">
+                            ${currentQuizStage === scenarios.length - 1 ? 'End My Misery ➔' : 'Next Disaster ➔'}
+                        </button>
                     </div>
-                    <button onclick="nextQuizStage()" class="bg-slate-800 hover:bg-slate-900 text-white font-black py-4 px-8 rounded-xl shadow transition w-full md:w-auto border-b-4 border-slate-600">
-                        ${currentQuizStage === scenarios.length - 1 ? 'End My Misery ➔' : 'Next Disaster ➔'}
-                    </button>
-                </div>
-            `;
+                `;
+            }
         }
 
         function nextQuizStage() {
@@ -706,86 +752,97 @@
 
         function renderOutro() {
             currentState = 'outro';
-            scoreContainer.style.display = 'none';
+            if (scoreContainer) scoreContainer.style.display = 'none';
             
             if (score >= 70) {
                 setAnimation('anim-smug', "Look at that. You passed. Now finish the trifecta setting yourself up in the new and super convenient self-service password reset (SSPR) tool then changing your current password to the required 15-character passPHRASE, so I can close your ticket and you can get to that well-deserved cursing of the IT department.");
                 
-                contentArea.innerHTML = `
-                    <div class="text-left animate-fade-in w-full">
-                        <h2 class="text-4xl font-black text-newman-navy mb-2 uppercase">Assessment Passed</h2>
-                        <p class="text-lg text-slate-700 mb-6 font-semibold">You survived the training. But we aren't done yet. To secure the network and save me from resetting your password at 3 PM every Friday (lookin' at you, Terry in Admissions), complete the final two steps below.</p>
-                        
-                        <div class="space-y-4 mb-8">
-                            <!-- Step 1 Complete -->
-                            <div class="bg-emerald-50 border-2 border-emerald-300 rounded-xl p-4 flex items-center justify-between">
-                                <div class="flex items-center gap-4">
-                                    <div class="bg-emerald-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">1</div>
-                                    <h3 class="text-emerald-900 font-black text-lg">Security Training</h3>
-                                </div>
-                                <div class="text-2xl">✅</div>
-                            </div>
-
-                            <!-- Step 2 SSPR -->
-                            <div class="bg-white border-2 border-slate-300 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between shadow-sm">
-                                <div class="flex items-center gap-4 mb-4 sm:mb-0 w-full">
-                                    <div class="bg-slate-800 text-white rounded-full min-w-[2rem] w-8 h-8 flex items-center justify-center font-bold">2</div>
-                                    <div>
-                                        <h3 class="text-slate-800 font-black text-lg">Enroll in SSPR</h3>
-                                        <p class="text-sm text-slate-500 font-medium">Set up your recovery phone/email so you can reset your own password.</p>
+                if (contentArea) {
+                    contentArea.innerHTML = `
+                        <div class="text-left animate-fade-in w-full">
+                            <h2 class="text-4xl font-black text-newman-navy mb-2 uppercase">Assessment Passed</h2>
+                            <p class="text-lg text-slate-700 mb-6 font-semibold">You survived the training. But we aren't done yet. To secure the network and save me from resetting your password at 3 PM every Friday (lookin' at you, Terry in Admissions), complete the final two steps below.</p>
+                            
+                            <div class="space-y-4 mb-8">
+                                <div class="bg-emerald-50 border-2 border-emerald-300 rounded-xl p-4 flex items-center justify-between">
+                                    <div class="flex items-center gap-4">
+                                        <div class="bg-emerald-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">1</div>
+                                        <h3 class="text-emerald-900 font-black text-lg">Security Training</h3>
                                     </div>
+                                    <div class="text-2xl">✅</div>
                                 </div>
-                                <button onclick="alert('This will redirect the user to: https://aka.ms/ssprsetup')" class="w-full sm:w-auto bg-newman-blue hover:bg-blue-600 text-white font-bold py-2 px-6 rounded shadow whitespace-nowrap transition">Enroll Now ➔</button>
-                            </div>
 
-                            <!-- Step 3 Reset Password -->
-                            <div class="bg-white border-2 border-slate-300 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between shadow-sm">
-                                <div class="flex items-center gap-4 mb-4 sm:mb-0 w-full">
-                                    <div class="bg-slate-800 text-white rounded-full min-w-[2rem] w-8 h-8 flex items-center justify-center font-bold">3</div>
-                                    <div>
-                                        <h3 class="text-slate-800 font-black text-lg">Change Password</h3>
-                                        <p class="text-sm text-slate-500 font-medium">Update to the new 15-character passphrase requirement.</p>
+                                <div class="bg-white border-2 border-slate-300 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between shadow-sm">
+                                    <div class="flex items-center gap-4 mb-4 sm:mb-0 w-full">
+                                        <div class="bg-slate-800 text-white rounded-full min-w-[2rem] w-8 h-8 flex items-center justify-center font-bold">2</div>
+                                        <div>
+                                            <h3 class="text-slate-800 font-black text-lg">Enroll in SSPR</h3>
+                                            <p class="text-sm text-slate-500 font-medium">Set up your recovery phone/email so you can reset your own password.</p>
+                                        </div>
                                     </div>
+                                    <button onclick="alert('This will redirect the user to: https://aka.ms/ssprsetup')" class="w-full sm:w-auto bg-newman-blue hover:bg-blue-600 text-white font-bold py-2 px-6 rounded shadow whitespace-nowrap transition">Enroll Now ➔</button>
                                 </div>
-                                <button onclick="alert('This will redirect the user to the M365 Password Reset Portal.')" class="w-full sm:w-auto bg-newman-navy hover:bg-blue-900 text-white font-bold py-2 px-6 rounded shadow whitespace-nowrap transition border-b-4 border-blue-950">Change Password ➔</button>
+
+                                <div class="bg-white border-2 border-slate-300 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between shadow-sm">
+                                    <div class="flex items-center gap-4 mb-4 sm:mb-0 w-full">
+                                        <div class="bg-slate-800 text-white rounded-full min-w-[2rem] w-8 h-8 flex items-center justify-center font-bold">3</div>
+                                        <div>
+                                            <h3 class="text-slate-800 font-black text-lg">Change Password</h3>
+                                            <p class="text-sm text-slate-500 font-medium">Update to the new 15-character passphrase requirement.</p>
+                                        </div>
+                                    </div>
+                                    <button onclick="alert('This will redirect the user to the M365 Password Reset Portal.')" class="w-full sm:w-auto bg-newman-navy hover:bg-blue-900 text-white font-bold py-2 px-6 rounded shadow whitespace-nowrap transition border-b-4 border-blue-950">Change Password ➔</button>
+                                </div>
+                            </div>
+
+                            <div class="flex flex-col sm:flex-row justify-between items-center gap-4 mt-6">
+                                 <button id="roast-btn" onclick="roastPerformance()" class="text-sm bg-purple-100 hover:bg-purple-200 text-purple-800 font-bold py-2 px-4 rounded-lg shadow-sm border border-purple-200 transition flex-1 w-full sm:w-auto">✨ Roast My Performance</button>
+                                 <button id="gen-nightmare-btn" onclick="generateNightmare()" class="text-xs text-indigo-500 hover:text-indigo-700 font-bold underline flex-1 text-right sm:text-right text-center">✨ Generate Custom AI Nightmare Scenario</button>
+                            </div>
+                            <div id="roast-box" class="hidden mt-4 bg-purple-50 border border-purple-200 rounded-lg p-4 shadow-inner">
+                                <p id="roast-text" class="text-sm text-purple-900 font-medium"></p>
                             </div>
                         </div>
-
-                        <div class="flex flex-col sm:flex-row justify-between items-center gap-4 mt-6">
-                             <button id="roast-btn" onclick="roastPerformance()" class="text-sm bg-purple-100 hover:bg-purple-200 text-purple-800 font-bold py-2 px-4 rounded-lg shadow-sm border border-purple-200 transition flex-1 w-full sm:w-auto">✨ Roast My Performance</button>
-                             <button id="gen-nightmare-btn" onclick="generateNightmare()" class="text-xs text-indigo-500 hover:text-indigo-700 font-bold underline flex-1 text-right sm:text-right text-center">✨ Generate Custom AI Nightmare Scenario</button>
-                        </div>
-                        <div id="roast-box" class="hidden mt-4 bg-purple-50 border border-purple-200 rounded-lg p-4 shadow-inner">
-                            <p id="roast-text" class="text-sm text-purple-900 font-medium"></p>
-                        </div>
-                    </div>
-                `;
+                    `;
+                }
             } else {
                 setAnimation('anim-dead', "I have deactivated your badge. Escort yourself off the premises.");
-                contentArea.innerHTML = `
-                    <div class="text-left animate-fade-in w-full">
-                        <h2 class="text-4xl font-black text-red-600 mb-2 uppercase">Assessment Failed</h2>
-                        <div class="bg-white rounded-xl p-6 border-2 border-slate-200 shadow-md mb-6 mt-4">
-                            <div class="text-xs text-slate-400 font-black mb-1 tracking-widest uppercase">Final Will to Live</div>
-                            <div class="text-5xl font-black text-red-600 font-mono">${score}%</div>
+                if (contentArea) {
+                    contentArea.innerHTML = `
+                        <div class="text-left animate-fade-in w-full">
+                            <h2 class="text-4xl font-black text-red-600 mb-2 uppercase">Assessment Failed</h2>
+                            <div class="bg-white rounded-xl p-6 border-2 border-slate-200 shadow-md mb-6 mt-4">
+                                <div class="text-xs text-slate-400 font-black mb-1 tracking-widest uppercase">Final Will to Live</div>
+                                <div class="text-5xl font-black text-red-600 font-mono">${score}%</div>
+                            </div>
+                            <p class="text-lg text-slate-700 mb-6 font-semibold">You are a catastrophic liability. IT is currently crying in the MDF closet. You must restart the training before you are allowed to enroll in SSPR or change your password.</p>
+                            
+                            <button onclick="renderIntro()" class="bg-slate-800 hover:bg-slate-900 text-white font-black py-4 px-8 rounded-xl transition border-b-4 border-slate-600 w-full mb-4">
+                                ↻ Restart Full Suite
+                            </button>
+                            
+                            <button id="roast-btn" onclick="roastPerformance()" class="w-full bg-red-100 hover:bg-red-200 text-red-800 font-bold py-3 px-6 rounded-xl shadow-sm border border-red-200 transition">✨ Tell me how bad I did (AI Roast)</button>
+                            <div id="roast-box" class="hidden mt-4 bg-red-50 border border-red-200 rounded-lg p-4 shadow-inner">
+                                <p id="roast-text" class="text-sm text-red-900 font-medium"></p>
+                            </div>
                         </div>
-                        <p class="text-lg text-slate-700 mb-6 font-semibold">You are a catastrophic liability. IT is currently crying in the MDF closet. You must restart the training before you are allowed to enroll in SSPR or change your password.</p>
-                        
-                        <button onclick="renderIntro()" class="bg-slate-800 hover:bg-slate-900 text-white font-black py-4 px-8 rounded-xl transition border-b-4 border-slate-600 w-full mb-4">
-                            ↻ Restart Full Suite
-                        </button>
-                        
-                        <button id="roast-btn" onclick="roastPerformance()" class="w-full bg-red-100 hover:bg-red-200 text-red-800 font-bold py-3 px-6 rounded-xl shadow-sm border border-red-200 transition">✨ Tell me how bad I did (AI Roast)</button>
-                        <div id="roast-box" class="hidden mt-4 bg-red-50 border border-red-200 rounded-lg p-4 shadow-inner">
-                            <p id="roast-text" class="text-sm text-red-900 font-medium"></p>
-                        </div>
-                    </div>
-                `;
+                    `;
+                }
             }
         }
 
-        // Boot
-        renderIntro();
+        // --- BOOTSTRAP TO PREVENT DOM LOADING ERRORS ---
+        document.addEventListener('DOMContentLoaded', () => {
+            contentArea = document.getElementById('content-area');
+            character = document.getElementById('character');
+            geekDialogue = document.getElementById('geek-dialogue');
+            scoreContainer = document.getElementById('score-container');
+            scoreDisplay = document.getElementById('score-display');
+            headerTitle = document.getElementById('header-title');
+            headerSubtitle = document.getElementById('header-subtitle');
+            
+            renderIntro();
+        });
     </script>
 </body>
 </html>
