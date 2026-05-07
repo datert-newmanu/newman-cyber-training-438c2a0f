@@ -3,743 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Project Unified Action: Newman IT Modernization</title>
-    
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        newmanNavy: '#002D62',
-                        newmanBlue: '#4B9CD3',
-                        warmNeutral: '#F8FAFC',
-                    }
-                }
-            }
-        }
-    </script>
-
+    <title>Newman IT Modernization Strategy</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        body { background-color: #F8FAFC; }
-        
-        .chart-container {
-            position: relative;
-            width: 100%;
-            max-width: 800px;
-            margin-left: auto;
-            margin-right: auto;
-            height: 350px;
-            max-height: 400px;
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background-color: #0c1b33; font-family: 'DM Sans', sans-serif; overflow-x: hidden; }
+        .slide-container {
+            width: 1280px; height: 720px; background: #fdfcf7; color: #0c1b33;
+            position: relative; display: flex; flex-direction: column; padding: 60px;
+            border-radius: 8px; box-shadow: 0 20px 40px rgba(0,0,0,0.3); margin: 40px auto;
         }
-        @media (max-width: 768px) {
-            .chart-container { height: 280px; }
-        }
-
-        .nav-btn { transition: all 0.2s ease-in-out; }
-        .nav-active { border-bottom: 4px solid #4B9CD3; color: #002D62; font-weight: 800; background-color: #f1f5f9; }
-        .nav-inactive { color: #64748b; border-bottom: 4px solid transparent; }
-        .nav-inactive:hover { color: #002D62; background-color: #e2e8f0; }
-        
-        .view-section { display: none; animation: fadeIn 0.4s ease-out forwards; }
-        .view-active { display: block; }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .ai-card { transition: all 0.3s ease; cursor: pointer; perspective: 1000px; }
-        .ai-card-inner { transition: transform 0.6s; transform-style: preserve-3d; position: relative; width: 100%; height: 100%; min-height: 160px; }
-        .ai-card:hover .ai-card-inner { transform: rotateY(180deg); }
-        .ai-card-front, .ai-card-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 0.75rem; padding: 1.5rem; display: flex; flex-direction: column; justify-content: center; }
-        .ai-card-front { background-color: white; border: 2px solid #e2e8f0; }
-        .ai-card-back { background-color: #002D62; color: white; transform: rotateY(180deg); border: 2px solid #002D62; }
-
-        .timeline-step { cursor: pointer; transition: all 0.2s; border-left: 4px solid #e2e8f0; padding-left: 2rem; position: relative; margin-bottom: 2rem; }
-        .timeline-step:hover { border-left-color: #4B9CD3; transform: translateX(5px); }
-        .timeline-marker { position: absolute; left: -14px; top: 0; width: 24px; height: 24px; border-radius: 50%; background: #002D62; border: 4px solid #F8FAFC; box-shadow: 0 0 0 2px #e2e8f0; transition: all 0.2s; }
-        .timeline-step:hover .timeline-marker { background: #4B9CD3; box-shadow: 0 0 0 2px #4B9CD3; }
-        
-        .timeline-fast-track { border-left: 4px solid #10B981; }
-        .timeline-fast-track .timeline-marker { background: #10B981; box-shadow: 0 0 0 2px #10B981; }
-
-        /* Pure CSS Spinner */
-        .loader-ring {
-            border: 3px solid #e2e8f0;
-            border-top: 3px solid currentColor;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .slide-container::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 12px; background: linear-gradient(90deg, #0c1b33, #9d2235); }
+        h1 { font-family: 'Merriweather', serif; font-size: 64px; color: #0c1b33; margin-bottom: 20px; }
+        h2.slide-title { font-family: 'Merriweather', serif; font-size: 42px; border-left: 8px solid #9d2235; padding-left: 20px; margin-bottom: 40px; text-transform: uppercase; }
+        p, li { font-size: 22px; line-height: 1.6; color: #334155; }
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; }
+        .highlight { background: #0c1b33; color: #fff; padding: 30px; border-radius: 12px; margin-top: 20px; }
+        .highlight h3 { color: #fdfcf7; margin-bottom: 10px; }
+        .icon-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 30px; }
+        .icon-tile { background: #fff; border: 1px solid #e2e8f0; padding: 30px; border-radius: 12px; text-align: center; border-bottom: 5px solid #9d2235; }
+        .icon-tile i { font-size: 50px; color: #9d2235; margin-bottom: 15px; }
     </style>
 </head>
-<body class="font-sans text-slate-800 antialiased min-h-screen flex flex-col">
+<body>
 
-    <header class="bg-white shadow-sm sticky top-0 z-50 border-b-4 border-newmanBlue">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-col md:flex-row justify-between items-center py-4">
-                <div class="flex items-center gap-3 mb-4 md:mb-0">
-                    <div class="text-4xl">🚀</div>
-                    <div>
-                        <h1 class="text-2xl font-black text-newmanNavy tracking-tight">Project Unified Action</h1>
-                        <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">Newman University 30-Day Transformation</p>
-                    </div>
-                </div>
-                <nav class="flex space-x-1 sm:space-x-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0">
-                    <button onclick="switchTab('overview')" id="tab-overview" class="nav-btn nav-active px-3 py-2 text-sm font-bold uppercase tracking-wider whitespace-nowrap rounded-t-lg">The Vision</button>
-                    <button onclick="switchTab('roi')" id="tab-roi" class="nav-btn nav-inactive px-3 py-2 text-sm font-bold uppercase tracking-wider whitespace-nowrap rounded-t-lg">Exec ROI</button>
-                    <button onclick="switchTab('ux')" id="tab-ux" class="nav-btn nav-inactive px-3 py-2 text-sm font-bold uppercase tracking-wider whitespace-nowrap rounded-t-lg">UX & GenAI</button>
-                    <button onclick="switchTab('timeline')" id="tab-timeline" class="nav-btn nav-inactive px-3 py-2 text-sm font-bold uppercase tracking-wider whitespace-nowrap rounded-t-lg bg-emerald-50 text-emerald-700">30-Day Action Plan</button>
-                </nav>
+<div class="slide-container" style="justify-content: center; text-align: center; background: #0c1b33; color: #fff;">
+    <h1 style="color: #fff;">Modernizing the Newman Identity</h1>
+    <p style="font-size: 28px; color: #cbd5e1;">A Unified Strategy for Security & Efficiency</p>
+    <div style="margin-top: 60px; font-weight: bold; border-top: 2px solid #9d2235; display: inline-block; padding-top: 20px;">TRAVIS DATER | IT LEAD</div>
+</div>
+
+<div class="slide-container">
+    <h2 class="slide-title">My Apps: Mission Control</h2>
+    <div class="two-col">
+        <div>
+            <p>Every Newman browser will now open to <b>myapps.microsoft.com</b>. No more hunting for links.</p>
+            <div class="highlight">
+                <h3>One Dashboard. All Your Tools.</h3>
+                <p>A personalized grid containing Canvas, Outlook, Samanage, and Payroll. Click the icon, and you are instantly logged in.</p>
             </div>
         </div>
-    </header>
+        <div style="background: #e2e8f0; height: 400px; border-radius: 12px; display: flex; align-items: center; justify-content: center; text-align: center; border: 2px dashed #9d2235;">
+            <p style="font-style: italic;">[Graphic: Screenshot of Newman-Branded MyApps Portal]</p>
+        </div>
+    </div>
+</div>
 
-    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+<div class="slide-container">
+    <h2 class="slide-title">The Managed Browser</h2>
+    <p style="margin-bottom: 20px;">By signing into Edge with your Newman ID, your work environment follows you everywhere.</p>
+    <div class="icon-grid">
+        <div class="icon-tile"><i class="fa-solid fa-home"></i><h3>Startup Pages</h3><p>Newman.edu, MyApps, and Service Desk.</p></div>
+        <div class="icon-tile"><i class="fa-solid fa-star"></i><h3>Managed Links</h3><p>Direct bookmarks for Library & Payroll.</p></div>
+        <div class="icon-tile"><i class="fa-solid fa-user-shield"></i><h3>Security Sync</h3><p>Secure passwords and verified extensions.</p></div>
+    </div>
+</div>
 
-        <section id="view-overview" class="view-section view-active">
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-10">
-                <h2 class="text-3xl font-black text-newmanNavy mb-4">One Unified Package. Campus-Wide Impact.</h2>
-                <p class="text-lg text-slate-600 mb-8 leading-relaxed border-l-4 border-newmanBlue pl-4 bg-slate-50 p-4 rounded-r">
-                    We are no longer addressing IT issues in silos. This proposal bundles our most critical technology upgrades—<strong>SolarWinds Service Desk, the 15-character password mandate, Canvas SSO, and Managed Browser Workspaces</strong>—into a single, unified action plan. By upgrading our core platform to SolarWinds, we create the engine required to automate the rest.
-                </p>
+<div class="slide-container">
+    <h2 class="slide-title">Live Interactive Training</h2>
+    <div class="two-col">
+        <div>
+            <p>We are ensuring every user feels confident with these tools through live engagement.</p>
+            <ul style="margin: 20px 0 0 40px; font-size: 24px;">
+                <li>Live Teams walkthroughs</li>
+                <li>Real-time Q&A sessions</li>
+                <li>Recorded for 24/7 access</li>
+            </ul>
+        </div>
+        <div style="background: #0c1b33; color: #fff; padding: 40px; border-radius: 12px; text-align: center;">
+            <i class="fa-solid fa-video" style="font-size: 80px; color: #9d2235; margin-bottom: 20px;"></i>
+            <h3>Training Library</h3>
+            <p>Hosted on SharePoint & Samanage KB</p>
+        </div>
+    </div>
+</div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                    <div class="bg-white border-2 border-slate-200 rounded-xl p-6 shadow-sm hover:border-rose-300 transition">
-                        <div class="flex items-center gap-3 mb-4 pb-3 border-b border-slate-100">
-                            <span class="text-2xl">🛑</span>
-                            <h3 class="text-xl font-bold text-slate-800">The Current Friction</h3>
-                        </div>
-                        <ul class="space-y-3 text-sm text-slate-600">
-                            <li class="flex items-start gap-2"><span>▪️</span><span><strong>Lost Links & Logins:</strong> Users constantly forget URLs for support, email, and Canvas, leading to Helpdesk calls.</span></li>
-                            <li class="flex items-start gap-2"><span>▪️</span><span><strong>Manual Resets:</strong> Helpdesk overwhelmed by simple password resets, delaying actual IT support.</span></li>
-                            <li class="flex items-start gap-2"><span>▪️</span><span><strong>Basic Ticketing:</strong> Freshdesk lacks Entra ID sync, forcing manual HR/IT data entry and blind asset management.</span></li>
-                        </ul>
-                    </div>
-
-                    <div class="bg-newmanNavy border-2 border-newmanNavy rounded-xl p-6 shadow-md text-white transform hover:scale-[1.02] transition">
-                        <div class="flex items-center gap-3 mb-4 pb-3 border-b border-blue-800">
-                            <span class="text-2xl">✨</span>
-                            <h3 class="text-xl font-bold text-white">The Unified Solution</h3>
-                        </div>
-                        <ul class="space-y-3 text-sm text-blue-100">
-                            <li class="flex items-start gap-2"><span>▪️</span><span><strong>Frictionless Workspaces:</strong> Centrally managed browsers pre-load all essential apps automatically on login.</span></li>
-                            <li class="flex items-start gap-2"><span>▪️</span><span><strong>Automated SSPR:</strong> Users reset their own 15-char passwords via our new interactive training app.</span></li>
-                            <li class="flex items-start gap-2"><span>▪️</span><span><strong>SolarWinds ITSM:</strong> The central hub that tracks assets, automates onboarding, and secures the network.</span></li>
-                        </ul>
-                    </div>
-                </div>
-
-                <hr class="border-slate-200 my-10">
-
-                <div>
-                    <h2 class="text-3xl font-black text-newmanNavy mb-2">Campus Readiness: Driving User Adoption</h2>
-                    <p class="text-lg text-slate-600 mb-8 leading-relaxed">
-                        Technology is only as good as its adoption rate. To ensure a smooth transition to 15-character passwords, SSPR, and the Frictionless Workspace, we are rolling out a highly engaging, user-first change management plan.
-                    </p>
-                    
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                        
-                        <a href="https://datert-newmanu.github.io/newman-cyber-training-438c2a0f/index.html" target="_blank" class="block group h-full">
-                            <div class="bg-slate-900 rounded-2xl overflow-hidden shadow-lg border-4 border-slate-800 group-hover:border-newmanBlue transition duration-300 relative h-full flex flex-col">
-                                <div class="bg-blue-950 p-4 text-center border-b border-slate-700">
-                                    <h3 class="text-xl font-black text-white uppercase tracking-wider">🛡️ Cyber Defender Academy</h3>
-                                    <p class="text-blue-300 text-xs mt-1">Click to launch live web app</p>
-                                </div>
-                                <div class="p-8 flex-grow flex flex-col justify-center items-center text-center relative z-10">
-                                    <div class="text-6xl mb-4 group-hover:scale-110 transition duration-300">🎮</div>
-                                    <h4 class="text-white font-bold text-lg mb-2">Gamified SSPR Onboarding</h4>
-                                    <p class="text-slate-400 text-sm mb-6">Users ignore PDF manuals. We custom-built an interactive, AI-driven web application that trains staff on security best practices, roasts their mistakes, and routes them directly into the SSPR enrollment flow.</p>
-                                    <div class="bg-newmanBlue text-white text-sm font-bold py-3 px-8 rounded-full group-hover:bg-blue-400 transition shadow-lg">
-                                        Play Live Demo ➔
-                                    </div>
-                                </div>
-                                <div class="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent z-0 opacity-50"></div>
-                            </div>
-                        </a>
-
-                        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex flex-col h-full">
-                            <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
-                                <h3 class="text-xl font-bold text-slate-800 flex items-center gap-2"><span>📅</span> Live Teams Townhalls</h3>
-                                <span class="bg-purple-100 text-purple-800 text-xs font-bold px-3 py-1 rounded-full border border-purple-200 shadow-sm">Open to all Staff & Faculty</span>
-                            </div>
-                            <p class="text-sm text-slate-600 mb-6">To ensure no one is left behind, I will be hosting three live Microsoft Teams sessions. I will personally walk through the new browser workspace, Canvas SSO, and SSPR enrollment. Users can drop in, see it in action, and ask questions before the cutover.</p>
-                            
-                            <div class="space-y-4 flex-grow">
-                                <div class="flex items-center gap-4 bg-slate-50 p-3 rounded-lg border border-slate-200 hover:bg-indigo-50 hover:border-indigo-200 transition">
-                                    <div class="bg-white border border-slate-200 rounded text-center w-14 shadow-sm flex-shrink-0 overflow-hidden">
-                                        <div class="bg-slate-800 text-white text-[10px] font-bold py-0.5 uppercase tracking-widest">Tue</div>
-                                        <div class="text-lg font-black text-slate-800 py-1">12</div>
-                                    </div>
-                                    <div class="flex-grow">
-                                        <h4 class="text-sm font-bold text-slate-800">Unified Action Walkthrough</h4>
-                                        <p class="text-xs text-slate-500 font-medium">10:00 AM - 11:00 AM CST</p>
-                                    </div>
-                                    <button class="bg-indigo-600 hover:bg-indigo-700 text-white p-2 rounded-lg shadow-sm transition text-xs font-bold flex items-center gap-1 flex-shrink-0" onclick="alert('In production, this opens the Teams meeting link')">
-                                        Join 📹
-                                    </button>
-                                </div>
-
-                                <div class="flex items-center gap-4 bg-slate-50 p-3 rounded-lg border border-slate-200 hover:bg-indigo-50 hover:border-indigo-200 transition">
-                                    <div class="bg-white border border-slate-200 rounded text-center w-14 shadow-sm flex-shrink-0 overflow-hidden">
-                                        <div class="bg-slate-800 text-white text-[10px] font-bold py-0.5 uppercase tracking-widest">Thu</div>
-                                        <div class="text-lg font-black text-slate-800 py-1">14</div>
-                                    </div>
-                                    <div class="flex-grow">
-                                        <h4 class="text-sm font-bold text-slate-800">Unified Action Walkthrough</h4>
-                                        <p class="text-xs text-slate-500 font-medium">2:00 PM - 3:00 PM CST</p>
-                                    </div>
-                                    <button class="bg-indigo-600 hover:bg-indigo-700 text-white p-2 rounded-lg shadow-sm transition text-xs font-bold flex items-center gap-1 flex-shrink-0" onclick="alert('In production, this opens the Teams meeting link')">
-                                        Join 📹
-                                    </button>
-                                </div>
-
-                                <div class="flex items-center gap-4 bg-slate-50 p-3 rounded-lg border border-slate-200 hover:bg-indigo-50 hover:border-indigo-200 transition">
-                                    <div class="bg-white border border-slate-200 rounded text-center w-14 shadow-sm flex-shrink-0 overflow-hidden">
-                                        <div class="bg-newmanBlue text-white text-[10px] font-bold py-0.5 uppercase tracking-widest">Fri</div>
-                                        <div class="text-lg font-black text-slate-800 py-1">15</div>
-                                    </div>
-                                    <div class="flex-grow">
-                                        <h4 class="text-sm font-bold text-slate-800">Final Q&A / Live Setup</h4>
-                                        <p class="text-xs text-slate-500 font-medium">9:00 AM - 10:00 AM CST</p>
-                                    </div>
-                                    <button class="bg-indigo-600 hover:bg-indigo-700 text-white p-2 rounded-lg shadow-sm transition text-xs font-bold flex items-center gap-1 flex-shrink-0" onclick="alert('In production, this opens the Teams meeting link')">
-                                        Join 📹
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </section>
-
-        <section id="view-roi" class="view-section">
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-10">
-                <div class="flex justify-between items-end mb-6">
-                    <div>
-                        <h2 class="text-3xl font-black text-newmanNavy mb-2">Automating the Overhead</h2>
-                        <p class="text-slate-600 font-medium">Reallocating IT resources from reactive firefighting to proactive strategy.</p>
-                    </div>
-                    <div class="hidden md:block text-5xl">📊</div>
-                </div>
-
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start mb-8">
-                    <div class="lg:col-span-2 bg-slate-50 p-4 rounded-xl border border-slate-200">
-                        <h3 class="text-center text-sm font-bold text-slate-500 uppercase tracking-widest mb-2">Weekly IT Hour Reallocation</h3>
-                        <div class="chart-container">
-                            <canvas id="roiChart"></canvas>
-                        </div>
-                    </div>
-                    
-                    <div class="space-y-4">
-                        <div class="bg-emerald-50 border border-emerald-200 p-4 rounded-xl">
-                            <h4 class="font-bold text-emerald-900 mb-1 flex items-center gap-2"><span>⏱️</span> Zero-Day Onboarding</h4>
-                            <p class="text-xs text-emerald-800">Entra ID sync automatically provisions accounts when HR hits "Hire". Laptops are assigned via ITAM before Day 1.</p>
-                        </div>
-                        <div class="bg-emerald-50 border border-emerald-200 p-4 rounded-xl">
-                            <h4 class="font-bold text-emerald-900 mb-1 flex items-center gap-2"><span>🛡️</span> Hardware Lifecycle</h4>
-                            <p class="text-xs text-emerald-800">SolarWinds network scanners dynamically map exactly what Newman owns, eliminating hardware budget guesswork.</p>
-                        </div>
-                        <div class="bg-emerald-50 border border-emerald-200 p-4 rounded-xl">
-                            <h4 class="font-bold text-emerald-900 mb-1 flex items-center gap-2"><span>🔄</span> SSO & Deflection</h4>
-                            <p class="text-xs text-emerald-800">Implementing Canvas SSO and SSPR simultaneously eliminates the #1 cause of Helpdesk tickets instantly.</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mt-8 bg-blue-50 rounded-2xl border-2 border-blue-200 p-6 shadow-inner">
-                    <h3 class="text-xl font-black text-newmanNavy mb-2 flex items-center gap-2"><span>✨</span> AI Executive Pitch Generator</h3>
-                    <p class="text-sm text-slate-700 mb-4">Need to sell this in the hallway? Select a stakeholder, and the Gemini API will instantly draft a tailored elevator pitch focusing on the metrics they care about most.</p>
-                    <div class="flex flex-col sm:flex-row gap-4 items-center">
-                        <select id="pitch-stakeholder" class="p-3 rounded-lg border border-blue-300 focus:ring-2 focus:ring-newmanBlue outline-none text-sm shadow-sm w-full sm:w-1/3">
-                            <option value="CFO">Chief Financial Officer (CFO)</option>
-                            <option value="Provost">Provost / Academic Affairs</option>
-                            <option value="CISO">Chief Information Security Officer (CISO)</option>
-                            <option value="University President">University President</option>
-                        </select>
-                        <button onclick="generatePitch()" id="pitch-btn" class="w-full sm:w-auto bg-newmanNavy hover:bg-blue-900 text-white font-bold py-3 px-6 rounded-lg shadow transition flex justify-center items-center gap-2">
-                            <span>✨</span> Draft Pitch
-                        </button>
-                    </div>
-                    <div id="pitch-loading" class="hidden mt-4 text-newmanBlue text-sm font-bold flex items-center gap-2">
-                        <div class="loader-ring text-newmanBlue"></div>
-                        Consulting the AI...
-                    </div>
-                    <div id="pitch-output-container" class="hidden mt-4 bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
-                        <p id="pitch-output" class="text-sm text-slate-800 font-medium italic"></p>
-                    </div>
-                </div>
-
-            </div>
-        </section>
-
-        <section id="view-ux" class="view-section">
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-10">
-                
-                <div class="mb-12">
-                    <h2 class="text-3xl font-black text-newmanNavy mb-2">The Frictionless Workspace: Zero-Touch Access</h2>
-                    <p class="text-lg text-slate-600 leading-relaxed border-l-4 border-emerald-400 pl-4 bg-emerald-50 p-4 rounded-r mb-6">
-                        We are eliminating the "How do I get to..." questions forever. By deploying a centrally managed <strong>Microsoft Edge Enterprise Policy</strong>, every user's browser is automatically configured the moment they log in. No remembering URLs, no manual logins—just instant, seamless access to the tools they need.
-                    </p>
-
-                    <div class="border-2 border-slate-300 rounded-xl overflow-hidden shadow-lg bg-white max-w-4xl mx-auto">
-                        <div class="bg-slate-200 flex space-x-1 px-2 pt-2 items-end">
-                            <div class="bg-white rounded-t-lg px-4 py-2 text-xs font-bold text-slate-800 shadow-sm border-t border-x border-slate-300 relative z-10 flex items-center gap-2">
-                                <span>🎓</span> Newman Home
-                            </div>
-                            <div class="bg-slate-300 hover:bg-slate-100 rounded-t-lg px-4 py-2 text-xs font-semibold text-slate-600 border-t border-x border-slate-300 flex items-center gap-2 cursor-pointer transition">
-                                <span>🎧</span> IT Support Portal
-                            </div>
-                            <div class="bg-slate-300 hover:bg-slate-100 rounded-t-lg px-4 py-2 text-xs font-semibold text-slate-600 border-t border-x border-slate-300 flex items-center gap-2 cursor-pointer transition">
-                                <span>☁️</span> MyApps (Microsoft)
-                            </div>
-                            <div class="bg-slate-300 hover:bg-slate-100 rounded-t-lg px-4 py-2 text-xs font-semibold text-slate-600 border-t border-x border-slate-300 flex items-center gap-2 cursor-pointer transition">
-                                <span>🏢</span> Employee Intranet
-                            </div>
-                        </div>
-                        <div class="bg-white border-b border-slate-200 p-2 flex items-center gap-3">
-                            <div class="flex gap-2 text-slate-400 px-2">
-                                <span>⬅️</span><span>➡️</span><span>🔄</span>
-                            </div>
-                            <div class="bg-slate-100 rounded-full w-full px-4 py-1.5 text-xs text-slate-500 font-mono border border-slate-200 flex items-center gap-2">
-                                <span>🔒</span> https://newmanu.edu
-                            </div>
-                            <div class="w-6 h-6 rounded-full bg-newmanNavy text-white flex items-center justify-center text-xs font-bold">JD</div>
-                        </div>
-                        <div class="bg-slate-50 border-b border-slate-200 px-4 py-1.5 flex flex-wrap gap-4 text-xs font-semibold text-slate-700">
-                            <span class="flex items-center gap-1"><span class="text-slate-400">📁</span> Managed Favorites</span>
-                            <span class="text-slate-300">|</span>
-                            <span class="flex items-center gap-1 hover:text-newmanBlue cursor-pointer transition"><span>🎒</span> Canvas SSO</span>
-                            <span class="flex items-center gap-1 hover:text-newmanBlue cursor-pointer transition"><span>📚</span> Jenzabar</span>
-                            <span class="flex items-center gap-1 hover:text-newmanBlue cursor-pointer transition"><span>🔑</span> Password Reset (SSPR)</span>
-                            <span class="flex items-center gap-1 hover:text-newmanBlue cursor-pointer transition text-emerald-700 bg-emerald-100 px-2 rounded-full"><span>🎥</span> IT Training Hub (SharePoint)</span>
-                        </div>
-                        <div class="bg-white p-8 text-center border-t border-slate-100">
-                            <h3 class="text-xl font-bold text-slate-800 mb-2">Welcome to your Automated Workspace</h3>
-                            <p class="text-sm text-slate-500 max-w-xl mx-auto">
-                                With managed profiles, users are securely authenticated via Seamless SSO into Canvas, SolarWinds Service Desk, and Microsoft 365 immediately upon opening the browser. The new SharePoint Training Hub provides instant access to video guides directly from the bookmarks bar.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <hr class="border-slate-200 my-10">
-
-                <div class="mb-8">
-                    <h2 class="text-3xl font-black text-newmanNavy mb-2">SolarWinds GenAI: Student & Faculty Impact</h2>
-                    <p class="text-lg text-slate-600 leading-relaxed mb-6">
-                        Hover over the SolarWinds IT capabilities below to see how GenAI translates directly into a better user experience for the Newman community.
-                    </p>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-                    <div class="ai-card">
-                        <div class="ai-card-inner">
-                            <div class="ai-card-front">
-                                <div class="text-purple-600 text-2xl mb-2">🤖</div>
-                                <h4 class="font-bold text-slate-800 text-sm uppercase tracking-wider mb-1">Rename "Incidents" & Quick Filters</h4>
-                                <p class="text-xs text-slate-500 font-medium italic">Hover to reveal user benefit</p>
-                            </div>
-                            <div class="ai-card-back">
-                                <h4 class="font-bold text-white mb-2 text-lg">Frictionless Self-Service</h4>
-                                <p class="text-sm text-blue-100">Users don't know what an "Incident" is. Renaming it to "Tickets" and adding AI quick-filters makes the portal deeply intuitive for non-technical students.</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="ai-card">
-                        <div class="ai-card-inner">
-                            <div class="ai-card-front">
-                                <div class="text-purple-600 text-2xl mb-2">💬</div>
-                                <h4 class="font-bold text-slate-800 text-sm uppercase tracking-wider mb-1">GenAI Agent Communication (Labs)</h4>
-                                <p class="text-xs text-slate-500 font-medium italic">Hover to reveal user benefit</p>
-                            </div>
-                            <div class="ai-card-back">
-                                <h4 class="font-bold text-white mb-2 text-lg">Instant, Clear Answers</h4>
-                                <p class="text-sm text-blue-100">AI drafts empathetic, jargon-free replies for agents. Students get faster, clearer communication without confusing tech-speak.</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="ai-card">
-                        <div class="ai-card-inner">
-                            <div class="ai-card-front">
-                                <div class="text-purple-600 text-2xl mb-2">🛡️</div>
-                                <h4 class="font-bold text-slate-800 text-sm uppercase tracking-wider mb-1">Data Masking - Attachments</h4>
-                                <p class="text-xs text-slate-500 font-medium italic">Hover to reveal user benefit</p>
-                            </div>
-                            <div class="ai-card-back">
-                                <h4 class="font-bold text-white mb-2 text-lg">Automated Privacy Protection</h4>
-                                <p class="text-sm text-blue-100">Students can safely upload screenshots of errors. The AI automatically masks sensitive PII, student IDs, or grades before hitting the database.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-purple-50 rounded-2xl border-2 border-purple-200 p-6 shadow-inner">
-                    <h3 class="text-2xl font-black text-purple-900 mb-2 flex items-center gap-2"><span>✨</span> Live Demo: SolarWinds GenAI Agent</h3>
-                    <p class="text-sm text-purple-800 mb-6">Experience the proposed "GenAI-Powered Agent Communication". Type a simulated, frustrated student email below, and watch the AI instantly summarize the issue for IT and draft a professional response leveraging our new SSO and SSPR tools.</p>
-                    
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <div class="flex flex-col">
-                            <label class="block text-xs font-bold text-purple-700 uppercase tracking-wide mb-2">Simulated Student Ticket</label>
-                            <textarea id="ai-demo-input" class="w-full h-32 p-3 rounded-lg border border-purple-300 focus:ring-2 focus:ring-purple-500 outline-none text-sm shadow-sm resize-none" placeholder="e.g., I cant log into my classes!! Canvas is broken and it says wrong password but I know its right. Fix this NOW I have a test in 10 mins!!!"></textarea>
-                            <button id="ai-demo-btn" onclick="runAiDemo()" class="mt-3 w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-lg shadow transition flex justify-center items-center gap-2">
-                                <span>✨</span> Generate AI Response
-                            </button>
-                            <div id="ai-demo-loading" class="hidden mt-3 text-center text-purple-600 text-sm font-bold flex items-center justify-center gap-2">
-                                <div class="loader-ring text-purple-600"></div>
-                                Calling GenAI...
-                            </div>
-                            <div id="ai-demo-error" class="hidden mt-3 text-center text-red-600 text-sm font-bold bg-red-50 p-2 rounded border border-red-200"></div>
-                        </div>
-                        
-                        <div class="flex flex-col gap-4 h-full">
-                            <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-sm flex-1 flex flex-col">
-                                <h4 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 border-b pb-2">AI Summary for IT Dashboard</h4>
-                                <p id="ai-summary-output" class="text-sm text-slate-400 italic mt-1 flex-1">Waiting for ticket submission...</p>
-                            </div>
-                            <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-sm flex-1 flex flex-col">
-                                <h4 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 border-b pb-2">AI Drafted Reply to Student</h4>
-                                <p id="ai-reply-output" class="text-sm text-slate-400 italic mt-1 flex-1">Waiting for ticket submission...</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </section>
-
-        <section id="view-timeline" class="view-section">
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-10">
-                <div class="text-center mb-10">
-                    <h2 class="text-3xl font-black text-newmanNavy mb-2">The 30-Day Transformation Track</h2>
-                    <p class="text-lg text-slate-600">We do not need months to see ROI. By unifying these initiatives, we deliver immediate, campus-wide results. Click any phase to expand.</p>
-                </div>
-
-                <div class="max-w-4xl mx-auto pl-4">
-                    
-                    <div class="timeline-step timeline-fast-track" onclick="toggleTimeline('w1')">
-                        <div class="timeline-marker"></div>
-                        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-1">
-                            <h3 class="text-xl font-bold text-emerald-700">Phase 1: The Quick Wins & Foundation</h3>
-                            <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1 rounded-full w-max mt-2 sm:mt-0">Days 1 - 7</span>
-                        </div>
-                        <p class="text-slate-600 font-medium">Canvas SSO, Edge Policies Push, and SolarWinds Procurement.</p>
-                        
-                        <div id="w1-detail" class="hidden mt-4 bg-slate-50 p-4 rounded-lg border border-slate-200 text-sm">
-                            <ul class="space-y-2 text-slate-700">
-                                <li>✅ <strong>Identity:</strong> Configure and launch Canvas SSO integration with Entra ID.</li>
-                                <li>✅ <strong>Workspace:</strong> Push Microsoft Edge Enterprise Policies via Intune (Startup pages, Auto-Login, Managed Bookmarks, Training Hub).</li>
-                                <li>✅ <strong>Procurement:</strong> Finalize SolarWinds Service Desk & Dameware licensing.</li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <div class="timeline-step timeline-fast-track" onclick="toggleTimeline('w2')">
-                        <div class="timeline-marker"></div>
-                        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-1">
-                            <h3 class="text-xl font-bold text-newmanBlue">Phase 2: The Security Shift</h3>
-                            <span class="bg-blue-50 text-newmanBlue text-xs font-bold px-3 py-1 rounded-full w-max mt-2 sm:mt-0">Days 8 - 14</span>
-                        </div>
-                        <p class="text-slate-600 font-medium">Launch Interactive Training & Enforce 15-Char Passwords.</p>
-                        
-                        <div id="w2-detail" class="hidden mt-4 bg-slate-50 p-4 rounded-lg border border-slate-200 text-sm">
-                            <ul class="space-y-2 text-slate-700">
-                                <li>✅ <strong>Rollout:</strong> Deploy the interactive "IT Survival Guide" app to all staff and students.</li>
-                                <li>✅ <strong>Enforcement:</strong> Activate the 15-character password mandate in Entra ID.</li>
-                                <li>✅ <strong>Self-Service:</strong> Users enroll in SSPR, deflecting hundreds of initial password reset calls from the Helpdesk.</li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <div class="timeline-step" onclick="toggleTimeline('w3')">
-                        <div class="timeline-marker"></div>
-                        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-1">
-                            <h3 class="text-xl font-bold text-newmanNavy">Phase 3: ITSM & GenAI Activation</h3>
-                            <span class="bg-slate-100 text-slate-600 text-xs font-bold px-3 py-1 rounded-full w-max mt-2 sm:mt-0">Days 15 - 21</span>
-                        </div>
-                        <p class="text-slate-600 font-medium">SolarWinds Core goes live; AI Features Enabled.</p>
-                        
-                        <div id="w3-detail" class="hidden mt-4 bg-slate-50 p-4 rounded-lg border border-slate-200 text-sm">
-                            <ul class="space-y-2 text-slate-700">
-                                <li>✅ <strong>Cutover:</strong> Migrate active tickets from Freshdesk to SolarWinds.</li>
-                                <li>✅ <strong>User Portal:</strong> Launch the new Student/Faculty Self-Service portal with AI Quick Filters.</li>
-                                <li>✅ <strong>AI Assist:</strong> Activate GenAI Agent Communication, Data Masking on attachments, and Problem Suggestion.</li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <div class="timeline-step" onclick="toggleTimeline('w4')">
-                        <div class="timeline-marker"></div>
-                        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-1">
-                            <h3 class="text-xl font-bold text-newmanNavy">Phase 4: The Automated Campus</h3>
-                            <span class="bg-slate-100 text-slate-600 text-xs font-bold px-3 py-1 rounded-full w-max mt-2 sm:mt-0">Days 22 - 30</span>
-                        </div>
-                        <p class="text-slate-600 font-medium">Advanced Workflows, Zero-Day Onboarding, Asset Integration.</p>
-                        
-                        <div id="w4-detail" class="hidden mt-4 bg-slate-50 p-4 rounded-lg border border-slate-200 text-sm">
-                            <ul class="space-y-2 text-slate-700">
-                                <li>✅ <strong>HR Integration:</strong> Build Service Catalog workflows for Zero-Day Onboarding and Offboarding (Entra ID Sync).</li>
-                                <li>✅ <strong>ITAM Dashboard:</strong> CFO/IT review the populated Hardware Asset dashboard for budget planning.</li>
-                                <li>✅ <strong>Dameware:</strong> Standardize remote support across the campus, retiring unsecure third-party tools.</li>
-                            </ul>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-        </section>
-
-    </main>
-
-    <footer class="bg-slate-900 text-slate-400 py-6 text-center text-sm border-t-4 border-newmanBlue mt-auto">
-        <p>Project Unified Action - Delivered by Newman University IT Leadership</p>
-    </footer>
-
-    <script>
-        const state = { activeTab: 'overview', roiChartRendered: false };
-        let roiChartInstance = null;
-
-        function switchTab(tabId) {
-            const tabs = ['overview', 'roi', 'ux', 'timeline'];
-            
-            tabs.forEach(t => {
-                const btn = document.getElementById(`tab-${t}`);
-                const view = document.getElementById(`view-${t}`);
-                
-                if (btn && view) {
-                    if (t === tabId) {
-                        btn.classList.remove('nav-inactive');
-                        btn.classList.add('nav-active');
-                        if (t === 'timeline') btn.classList.add('bg-emerald-50', 'text-emerald-700');
-                        view.classList.remove('view-section');
-                        setTimeout(() => { view.classList.add('view-section', 'view-active'); }, 10);
-                    } else {
-                        btn.classList.remove('nav-active', 'bg-emerald-50', 'text-emerald-700');
-                        btn.classList.add('nav-inactive');
-                        view.classList.remove('view-active');
-                        view.classList.add('view-section');
-                    }
-                }
-            });
-
-            state.activeTab = tabId;
-
-            if (tabId === 'roi' && !state.roiChartRendered) {
-                renderRoiChart();
-                state.roiChartRendered = true;
-            }
-        }
-
-        function toggleTimeline(weekId) {
-            const detail = document.getElementById(`${weekId}-detail`);
-            if (detail.classList.contains('hidden')) {
-                detail.classList.remove('hidden');
-                detail.classList.add('animate-fade-in');
-            } else {
-                detail.classList.add('hidden');
-                detail.classList.remove('animate-fade-in');
-            }
-        }
-
-        function renderRoiChart() {
-            const ctx = document.getElementById('roiChart').getContext('2d');
-            const data = {
-                labels: ['Manual Admin (Entra/HR)', 'Asset Hunting', 'Routine Password Resets', 'Strategic Projects', 'Direct User Support'],
-                datasets: [
-                    { label: 'Current State (Freshdesk)', data: [35, 20, 25, 5, 15], backgroundColor: '#e2e8f0', borderRadius: 4 },
-                    { label: 'Future State (Unified Action)', data: [5, 5, 5, 50, 35], backgroundColor: '#4B9CD3', borderRadius: 4 }
-                ]
-            };
-
-            roiChartInstance = new Chart(ctx, {
-                type: 'bar',
-                data: data,
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'top', labels: { font: { family: 'sans-serif' } } },
-                        tooltip: { callbacks: { label: function(context) { return context.dataset.label + ': ' + context.parsed.y + '% of Time'; } } }
-                    },
-                    scales: {
-                        y: { beginAtZero: true, max: 60, title: { display: true, text: '% of Total IT Weekly Hours' } },
-                        x: {
-                            ticks: {
-                                callback: function(value, index, values) {
-                                    const label = this.getLabelForValue(value);
-                                    if (label.length > 15) {
-                                        const words = label.split(' ');
-                                        if(words.length > 2) return [words[0] + ' ' + words[1], words.slice(2).join(' ')];
-                                        return words;
-                                    }
-                                    return label;
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        // ==========================================
-        // Gemini API Configuration & Logic
-        // ==========================================
-        const apiKey = ""; // Handled by environment
-        const MODEL_NAME = "gemini-2.5-flash-preview-09-2025";
-
-        async function fetchWithRetry(url, options, maxRetries = 5) {
-            const delays = [1000, 2000, 4000, 8000, 16000];
-            for (let i = 0; i < maxRetries; i++) {
-                try {
-                    const response = await fetch(url, options);
-                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                    return await response.json();
-                } catch (e) {
-                    if (i === maxRetries - 1) throw e;
-                    await new Promise(res => setTimeout(res, delays[i]));
-                }
-            }
-        }
-
-        async function generatePitch() {
-            const stakeholder = document.getElementById('pitch-stakeholder').value;
-            const btn = document.getElementById('pitch-btn');
-            const loading = document.getElementById('pitch-loading');
-            const outputContainer = document.getElementById('pitch-output-container');
-            const outputText = document.getElementById('pitch-output');
-            
-            if (btn) btn.classList.add('hidden');
-            if (loading) loading.classList.remove('hidden');
-            if (outputContainer) outputContainer.classList.remove('hidden');
-            if (outputText) {
-                outputText.textContent = "";
-                outputText.classList.remove('text-red-500');
-            }
-            
-            const prompt = `You are the IT Director at Newman University. We are pitching "Project Unified Action" which rolls out SolarWinds Service Desk, Canvas SSO, 15-character passwords, Self-Service Password Reset (SSPR), and Managed Edge Browsers simultaneously to replace an outdated Freshdesk system.
-            Write a highly persuasive, 2-to-3 sentence elevator pitch tailored specifically for the ${stakeholder}. 
-            Focus strictly on the business value they care about (e.g., CFO = budget visibility/ROI, Provost = student experience/faculty time, CISO = security/compliance, President = modernization/reputation). Do not use jargon.`;
-            
-            const payload = {
-                contents: [{ parts: [{ text: prompt }] }],
-                systemInstruction: { parts: [{ text: "You are a professional IT executive making a concise, persuasive business pitch. Return only the pitch text as a plain string." }] }
-            };
-            
-            try {
-                const result = await fetchWithRetry(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${apiKey}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                
-                if (result.error) throw new Error(result.error.message);
-                const responseText = result.candidates[0].content.parts[0].text;
-                
-                if (outputText) outputText.textContent = `"${responseText.trim()}"`;
-                
-            } catch (err) {
-                console.error("GenAI Error:", err);
-                if (outputText) {
-                    outputText.textContent = "AI Service Error: Unable to generate pitch. Ensure API key is configured and active.";
-                    outputText.classList.add('text-red-500');
-                }
-            } finally {
-                if (btn) btn.classList.remove('hidden');
-                if (loading) loading.classList.add('hidden');
-            }
-        }
-        
-        async function runAiDemo() {
-            const inputField = document.getElementById('ai-demo-input');
-            const input = inputField ? inputField.value : "";
-            const btn = document.getElementById('ai-demo-btn');
-            const loading = document.getElementById('ai-demo-loading');
-            const errorDiv = document.getElementById('ai-demo-error');
-            const summaryOut = document.getElementById('ai-summary-output');
-            const replyOut = document.getElementById('ai-reply-output');
-            
-            if(!input.trim()) {
-                if (errorDiv) {
-                    errorDiv.textContent = "Please enter a simulated student email first.";
-                    errorDiv.classList.remove('hidden');
-                }
-                if (inputField) inputField.focus();
-                return;
-            }
-            
-            if (btn) btn.classList.add('hidden');
-            if (loading) loading.classList.remove('hidden');
-            if (errorDiv) errorDiv.classList.add('hidden');
-            
-            if (summaryOut) {
-                summaryOut.innerHTML = '<span class="animate-pulse text-purple-600">Analyzing ticket syntax...</span>';
-                summaryOut.classList.add('italic');
-            }
-            if (replyOut) {
-                replyOut.innerHTML = '<span class="animate-pulse text-purple-600">Drafting personalized response...</span>';
-                replyOut.classList.add('italic');
-            }
-            
-            const prompt = `You are a GenAI assistant integrated into SolarWinds Service Desk for Newman University IT.
-            A frustrated student submitted this ticket: "${input}"
-            Return a JSON object with two keys:
-            1. "summary": A 1-to-2 sentence technical summary for the IT agent.
-            2. "reply": A polite, empathetic draft response to the student, mentioning they can resolve password/login issues instantly using the new Self-Service Password Reset (SSPR) tool or Canvas SSO via their pre-configured Edge browser bookmarks.`;
-            
-            const payload = {
-                contents: [{ parts: [{ text: prompt }] }],
-                systemInstruction: { parts: [{ text: "Return valid JSON only. No markdown wrappers." }] },
-                generationConfig: { 
-                    responseMimeType: "application/json",
-                    responseSchema: { type: "OBJECT", properties: { summary: { type: "STRING" }, reply: { type: "STRING" } } }
-                }
-            };
-            
-            try {
-                const result = await fetchWithRetry(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${apiKey}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                
-                if (result.error) throw new Error(result.error.message);
-                const parsed = JSON.parse(result.candidates[0].content.parts[0].text);
-                
-                if (summaryOut) {
-                    summaryOut.innerHTML = `<span class="text-slate-800">${parsed.summary}</span>`;
-                    summaryOut.classList.remove('italic', 'text-slate-400');
-                }
-                if (replyOut) {
-                    replyOut.innerHTML = `<span class="text-slate-800">${parsed.reply.replace(/\n/g, '<br>')}</span>`;
-                    replyOut.classList.remove('italic', 'text-slate-400');
-                }
-                
-            } catch (err) {
-                console.error("GenAI Error:", err);
-                if (errorDiv) {
-                    errorDiv.textContent = "AI Service Error: Please ensure you are connected to the network or the API key is active.";
-                    errorDiv.classList.remove('hidden');
-                }
-                if (summaryOut) summaryOut.innerHTML = '<span class="text-red-500 font-bold">Failed to generate summary.</span>';
-                if (replyOut) replyOut.innerHTML = '<span class="text-red-500 font-bold">Failed to draft reply.</span>';
-            } finally {
-                if (btn) btn.classList.remove('hidden');
-                if (loading) loading.classList.add('hidden');
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const views = document.querySelectorAll('.view-section');
-            views.forEach(view => { if(view.id !== 'view-overview') view.classList.remove('view-active'); });
-        });
-    </script>
 </body>
 </html>
