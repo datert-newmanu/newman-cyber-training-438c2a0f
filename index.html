@@ -180,7 +180,7 @@
     </div>
 
     <script>
-        // --- DOM ELEMENTS ---
+        // --- DOM ELEMENTS (Assigned immediately) ---
         const contentArea = document.getElementById('content-area');
         const character = document.getElementById('character');
         const geekDialogue = document.getElementById('geek-dialogue');
@@ -779,25 +779,4 @@
                             You've completed the interactive modules. Now for the actual test. 
                             Your "Will to Live" is at 100%. If you hit 0%, I am confiscating your keyboard and instead of a laptop you will get an iPhone 4 with a cracked screen.  And no one knows the passcode to unlock it.
                         </p>
-                        <button onclick="startQuiz()" class="bg-red-600 hover:bg-red-700 text-white font-black py-4 px-8 rounded-xl shadow transition w-full md:w-auto border-b-4 border-red-800">
-                            BEGIN SUFFERING ➔
-                        </button>
-                    </div>
-                `;
-            }
-        }
-
-        function startQuiz() {
-            currentState = 'quiz'; currentQuizStage = 0; score = 100; updateScore(0);
-            if (scoreContainer) scoreContainer.style.display = 'block';
-            if (headerTitle) headerTitle.textContent = "IT Survival Simulator"; 
-            if (headerSubtitle) headerSubtitle.textContent = "IF YOU FAIL, WE JUDGE YOU.";
-            hideTTSButton(); renderQuizScenario();
-        }
-
-        function updateScore(points) {
-            score += points;
-            if (score > 100) score = 100; if (score < 0) score = 0;
-            if (scoreDisplay) {
-                scoreDisplay.textContent = score + "%";
-                if (score
+                        <button onclick="startQuiz()" class="bg-red-600 hover:bg-red-700 text-white font-black py-4 px-8 rounded-xl shadow transition w-full md:w-auto
