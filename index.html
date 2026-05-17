@@ -181,6 +181,7 @@
 
     <script>
         // --- DOM ELEMENTS ---
+        // Declared exactly once here at the top.
         const contentArea = document.getElementById('content-area');
         const character = document.getElementById('character');
         const geekDialogue = document.getElementById('geek-dialogue');
@@ -197,7 +198,7 @@
 
         // --- API SETUP ---
         // If this is left empty, the app will run in "Simulated AI" mode and provide pre-written funny responses.
-        const apiKey = ""; 
+        const apiKey = "YOUR_API_KEY_HERE"; 
         const TEXT_MODEL = "gemini-2.5-flash-preview-09-2025";
         const TEXT_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${TEXT_MODEL}:generateContent?key=${apiKey}`;
 
@@ -260,11 +261,15 @@
             setAnimation('anim-typing', "You interrupted my coffee break for THIS?");
 
             // SIMULATED AI FALLBACK
-            if (!apiKey) {
+            if (!apiKey || apiKey === "YOUR_API_KEY_HERE") {
                 setTimeout(() => {
                     if (hintText) hintText.innerHTML = `<strong>IT Guy:</strong> Honestly, the fact that you need a hint for this explains why my ticket queue is always full. Just look at the options again, carefully.`;
                     setAnimation('anim-sigh', "Read it slowly. Sound out the words if you have to.");
-                    if (hintBtn) hintBtn.innerHTML = "✨ Hint Deployed";
+                    if (hintBtn) {
+                        hintBtn.innerHTML = "✨ Hint Deployed";
+                        hintBtn.disabled = false;
+                        hintBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    }
                 }, 1500);
                 return;
             }
@@ -305,7 +310,7 @@
             const genBtn = document.getElementById('gen-nightmare-btn');
             
             // SIMULATED AI FALLBACK
-            if (!apiKey) {
+            if (!apiKey || apiKey === "YOUR_API_KEY_HERE") {
                 alert("The Custom AI Nightmare feature requires an active Generative AI key to generate unique scenarios on the fly. Newman IT is actively working on integration.");
                 return;
             }
@@ -380,7 +385,7 @@
             setAnimation('anim-typing', "Oh, you want my honest opinion? Big mistake.");
 
             // SIMULATED AI FALLBACK
-            if (!apiKey) {
+            if (!apiKey || apiKey === "YOUR_API_KEY_HERE") {
                 setTimeout(() => {
                     let simulatedRoast = score >= 70
                         ? "Wow, you actually passed. I'd throw you a parade, but I've seen your browser history. Let's just call it even. Please don't call the helpdesk today."
@@ -952,4 +957,46 @@
 
                             <div class="flex flex-col sm:flex-row justify-between items-center gap-4 mt-6">
                                  <button id="roast-btn" onclick="roastPerformance()" class="text-sm bg-purple-100 hover:bg-purple-200 text-purple-800 font-bold py-2 px-4 rounded-lg shadow-sm border border-purple-200 transition flex-1 w-full sm:w-auto">✨ Roast My Performance</button>
-                                 <button id="gen-nightmare-btn" onclick="generateNightmare()" class="text-xs text-indigo-500 hover:text-indigo-700 font-bold underline flex-1 text-right sm:text-right text-
+                                 <button id="gen-nightmare-btn" onclick="generateNightmare()" class="text-xs text-indigo-500 hover:text-indigo-700 font-bold underline flex-1 text-right sm:text-right text-center">✨ Generate Custom AI Nightmare Scenario</button>
+                            </div>
+                            <div id="roast-box" class="hidden mt-4 bg-purple-50 border border-purple-200 rounded-lg p-4 shadow-inner">
+                                <p id="roast-text" class="text-sm text-purple-900 font-medium"></p>
+                            </div>
+                        </div>
+                    `;
+                }
+            } else {
+                setAnimation('anim-dead', "I have deactivated your badge. Escort yourself off the premises.");
+                if (contentArea) {
+                    contentArea.innerHTML = `
+                        <div class="text-left animate-fade-in w-full">
+                            <h2 class="text-4xl font-black text-red-600 mb-2 uppercase">Assessment Failed</h2>
+                            <div class="bg-white rounded-xl p-6 border-2 border-slate-200 shadow-md mb-6 mt-4">
+                                <div class="text-xs text-slate-400 font-black mb-1 tracking-widest uppercase">Final Will to Live</div>
+                                <div class="text-5xl font-black text-red-600 font-mono">${score}%</div>
+                            </div>
+                            <p class="text-lg text-slate-700 mb-6 font-semibold">You are a catastrophic liability. IT is currently crying in the MDF closet. You must restart the training before you are allowed to enroll in SSPR or change your password.</p>
+                            
+                            <button onclick="renderIntro()" class="bg-slate-800 hover:bg-slate-900 text-white font-black py-4 px-8 rounded-xl transition border-b-4 border-slate-600 w-full mb-4">
+                                ↻ Restart Full Suite
+                            </button>
+                            
+                            <button id="roast-btn" onclick="roastPerformance()" class="w-full bg-red-100 hover:bg-red-200 text-red-800 font-bold py-3 px-6 rounded-xl shadow-sm border border-red-200 transition">✨ Tell me how bad I did (AI Roast)</button>
+                            <div id="roast-box" class="hidden mt-4 bg-red-50 border border-red-200 rounded-lg p-4 shadow-inner">
+                                <p id="roast-text" class="text-sm text-red-900 font-medium"></p>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        // --- BOOTSTRAP ---
+        if (contentArea && character && geekDialogue) {
+            renderIntro();
+        } else {
+            console.error("Critical DOM elements not found. Initialization stopped.");
+        }
+    </script>
+</body>
+</html>
