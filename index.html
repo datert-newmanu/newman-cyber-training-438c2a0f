@@ -180,6 +180,12 @@
     </div>
 
     <script>
+        // --- STATE VARIABLES ---
+        let currentState = 'intro';
+        let currentLessonIndex = 0;
+        let currentQuizStage = 0;
+        let score = 100;
+
         // --- DOM ELEMENTS ---
         const contentArea = document.getElementById('content-area');
         const character = document.getElementById('character');
@@ -189,14 +195,8 @@
         const headerTitle = document.getElementById('header-title');
         const headerSubtitle = document.getElementById('header-subtitle');
 
-        // --- STATE VARIABLES ---
-        let currentState = 'intro';
-        let currentLessonIndex = 0;
-        let currentQuizStage = 0;
-        let score = 100;
-
         // --- GEMINI API SETUP ---
-        const apiKey = "AIzaSyAQOQf5q7TJNbLEOFf4YtLRvqcbRthomlA"; // <--- Put your active API Key here
+        const apiKey = "YOUR_API_KEY_HERE"; // <--- Put your active API Key here
         const TEXT_MODEL = "gemini-2.5-flash-preview-09-2025";
         const TEXT_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${TEXT_MODEL}:generateContent?key=${apiKey}`;
 
@@ -449,4 +449,127 @@
                 title: "Lesson 2: The Hover Technique",
                 anim: "anim-smug",
                 dialogue: "Look, scammers lie. The 'Sender Name' is fake. The 'Link Text' is fake. Lucky for you, I'm here to show you how to bust these bozos.  Hover your mouse to see reality.",
-                audioPrompt: "Say in a sarcastic, exhausted IT
+                audioPrompt: "Say in a sarcastic, exhausted IT-guy voice: Seriously, just hover your mouse over the link before you click it.",
+                render: () => `
+                    <div class="animate-fade-in">
+                        <h2 class="text-2xl font-black text-slate-800 mb-4">Hover to Discover</h2>
+                        <p class="text-slate-600 mb-6">Interact with the fake email below. Hover over the bold texts to reveal their true, sinister nature.  It takes literally zero effort and prevents me from having to wipe ransomware off your hard drive and you from having to tell that little fib that you 'never clicked on anything'. Do not blindly click things like a deranged caffeinated squirrel. Stop, think, and hover.</p>
+                        
+                        <div class="bg-white border border-slate-300 rounded shadow-md p-4 mb-6">
+                            <div class="border-b border-slate-200 pb-2 mb-4">
+                                <p class="text-sm"><strong>From:</strong> <span class="tooltip-container font-bold text-blue-600">Newman HR Department<span class="tooltip-text text-red-400">hr-admin@scam-server-99.ru</span></span></p>
+                                <p class="text-sm"><strong>Subject:</strong> URGENT: Direct Deposit Failed</p>
+                            </div>
+                            <p class="text-sm text-slate-800 mb-4">Your last paycheck bounced. Please verify your banking details immediately or we will steal your money.</p>
+                            <p class="text-sm"><span class="tooltip-container font-bold text-blue-600 underline">Update Banking Info Here<span class="tooltip-text text-red-400">http://steal-your-pass.net/login.php</span></span></p>
+                        </div>
+                        <button onclick="nextLesson()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-xl shadow transition w-full md:w-auto">I Understand Hovering ➔</button>
+                    </div>
+                `
+            },
+            {
+                title: "Lesson 3: Hang Up the Phone",
+                anim: "anim-panic",
+                dialogue: "If someone calls you asking for a password, hang up. Hang up with some sass. It is not rude, it is security.",
+                audioPrompt: "Say in a sarcastic, exhausted IT-guy voice: We have administrator rights in the IT department already. There is absolutely no scenario that we would need you to tell us your password.  If we want into an account, we can do it all on our own without a password.",
+                render: () => `
+                    <div class="animate-fade-in">
+                        <h2 class="text-2xl font-black text-slate-800 mb-4">Vishing (Voice Phishing)</h2>
+                        <p class="text-slate-600 mb-6">Attackers will call pretending to be the Helpdesk. Your goal is to smash the 'Hang Up' button to neutralize the threat.
+                        We literally own the network. If we wanted into your account, we would just take it.  We don't need your password to do that.  Lucky for you, we value your privacy as much as you do and we think you're pretty neat.  Hang up the phone on these clowns. It is the one time you are legally allowed to be rude at school or work. Let that sass out for once and enjoy it.</p>
+                        <div class="bg-slate-800 border-4 border-slate-900 rounded-3xl shadow-xl p-6 mb-6 max-w-xs mx-auto text-center" id="phone-ui">
+                            <div class="text-4xl mb-4 ringing">📱</div>
+                            <p class="text-green-400 text-sm font-bold mb-1 animate-pulse">INCOMING CALL</p>
+                            <p class="text-white text-xl font-bold mb-8">"Dave" from IT</p>
+                            <button onclick="slamPhone()" class="bg-red-600 hover:bg-red-700 text-white font-black py-4 px-8 rounded-full shadow-lg transform hover:scale-105 transition w-full uppercase tracking-widest border-b-4 border-red-800">Hang Up</button>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                title: "Lesson 4: The Coffee Shop",
+                anim: "anim-facepalm",
+                dialogue: "You left your laptop open at Starbucks. You practically handed the keys to the kingdom to a hipster named Kai that smells like a mix of patchouli and Axe Body Spray and who gets offended by EVERYTHING that ANYONE says or does.",
+                audioPrompt: "Say in a sarcastic, exhausted IT-guy voice: It takes exactly two keys to lock your screen. Windows plus L. Do it when you go to the bathroom. Do it when you get coffee. Do it again after you drink the coffee and need to go back to the bathroom.",
+                render: () => `
+                    <div class="animate-fade-in">
+                        <h2 class="text-2xl font-black text-slate-800 mb-4">Physical Security</h2>
+                        <p class="text-slate-600 mb-6">Never leave a device unlocked.   If you leave your laptop unlocked, I will personally make your desktop background an unchangeable giant zoomed-in closeup disturbingly high definition photo of my face and nostrils with the caption 'I left my screen unlocked and all I got was this weird Newman IT guy themed screensaver'.  Click the laptop screen to lock it before disaster strikes.</p>
+                        
+                        <div class="relative w-full h-48 bg-slate-200 rounded-xl overflow-hidden mb-6 cursor-pointer border border-slate-300" onclick="lockLaptop(this)">
+                            <div class="absolute inset-2 bg-white rounded flex flex-col p-2 shadow-inner" id="laptop-screen">
+                                <div class="bg-blue-600 text-white text-[10px] font-bold p-1">Newman Admin Portal</div>
+                                <div class="p-2 text-xs text-slate-700">
+                                    <p class="mb-1 border-b border-slate-200"><strong>Student:</strong> John Doe | <strong>Grade:</strong> F</p>
+                                    <p class="text-red-500 font-bold animate-pulse mt-2">DANGER: UNLOCKED!</p>
+                                </div>
+                            </div>
+                        </div>
+                        <p id="lock-msg" class="text-sm font-bold text-emerald-600 hidden mb-4">Locked! Threat averted.</p>
+                        <button id="next-btn-3" onclick="nextLesson()" class="bg-slate-300 text-slate-500 font-bold py-3 px-6 rounded-xl shadow w-full md:w-auto cursor-not-allowed" disabled>Lock it first ➔</button>
+                    </div>
+                `
+            },
+            {
+                title: "Lesson 5: The Ultimate MFA (Passkeys)",
+                anim: "anim-smug",
+                dialogue: "Yes, you still need a 15-character passphrase. But for your Multi-Factor Authentication? We are moving to Passkeys. No more typing 6-digit text codes. Just look at your phone or scan your fingerprint and you're in.",
+                audioPrompt: "Say in a sarcastic, exhausted IT guy voice: Listen, we are still making you use a 15-character passphrase. Do not forget that. But for your second step, your MFA, we are rolling out Passkeys. You just use your smartphone, scan your face or your thumb, and it cryptographically proves it's you. Hackers cannot steal it because it never leaves your device. It replaces those annoying six-digit text messages.",
+                render: () => `
+                    <div class="animate-fade-in">
+                        <h2 class="text-2xl font-black text-slate-800 mb-4">Passkeys: The Ultimate MFA</h2>
+                        <p class="text-slate-600 mb-6">A Passkey turns your smartphone into a cryptographic vault for your Multi-Factor Authentication (MFA). You will still have your 15-character passphrase, but instead of typing in a texted code for your second step, you just approve the login on your phone using Face ID or your fingerprint. It's un-phishable. Prove you know how to use your phone for something other than scrolling social media.</p>
+                        
+                        <div class="bg-slate-800 border-4 border-slate-900 rounded-3xl shadow-xl p-6 mb-6 max-w-xs mx-auto text-center relative transition-colors duration-300" id="passkey-ui">
+                            <div class="text-4xl mb-4">📲</div>
+                            <p class="text-white text-sm font-bold mb-4">Link Phone to Newman Entra ID</p>
+                            <div class="bg-white rounded-xl p-4 cursor-pointer hover:bg-slate-100 transition shadow-inner border-2 border-slate-300" onclick="registerPasskey()">
+                                <div class="text-3xl mb-2 text-newman-blue">👁️ / 👆</div>
+                                <p class="text-slate-700 text-xs font-black uppercase tracking-widest">Tap to Scan Face/Fingerprint</p>
+                            </div>
+                        </div>
+                        <p id="passkey-msg" class="text-sm font-bold text-emerald-600 hidden mb-4 text-center">Device Registered! Passkey MFA active.</p>
+                        <button id="next-btn-passkey" onclick="nextLesson()" class="bg-slate-300 text-slate-500 font-bold py-3 px-6 rounded-xl shadow w-full md:w-auto cursor-not-allowed mx-auto block" disabled>Next Lesson ➔</button>
+                    </div>
+                `
+            },
+            {
+                title: "Lesson 6: The 3-Step MFA Setup",
+                anim: "anim-facepalm",
+                dialogue: "I know reading is hard, but follow these 3 steps to set up your Passkey MFA. And yes, for the hundredth time, you still have to change your actual password to 15 characters after this.",
+                audioPrompt: "Say in a sarcastic, exhausted IT guy voice: Okay, pay attention because I'm only going to say this once. Step 1: Go to your Microsoft account security settings. Step 2: Click 'Add sign-in method' and select Passkey. Step 3: Scan the QR code with your phone camera and let your face or fingerprint do the rest. Once your MFA is set up, you still have to go change your actual password to 15 characters. Do not skip that step.",
+                render: () => `
+                    <div class="animate-fade-in">
+                        <h2 class="text-2xl font-black text-slate-800 mb-4">The 3-Step Passkey MFA Setup</h2>
+                        <p class="text-slate-600 mb-6">Since you all love to ignore my PDF guides, I'm making you check these boxes to prove you read the instructions for setting up your new MFA. Remember: You still need to change your password to 15 characters after setting this up!</p>
+                        
+                        <div class="space-y-4 mb-6">
+                            <label class="flex items-start gap-3 p-4 bg-white border-2 border-slate-200 rounded-xl cursor-pointer hover:border-newman-blue transition shadow-sm">
+                                <input type="checkbox" class="step-check mt-1 w-5 h-5 text-newman-blue" onchange="checkPasskeySteps()">
+                                <div>
+                                    <span class="font-bold text-slate-800 block">Step 1: The Portal</span>
+                                    <span class="text-sm text-slate-600">Log into <strong>mysignins.microsoft.com</strong> (or click the 'Security Info' link in your profile).</span>
+                                </div>
+                            </label>
+                            
+                            <label class="flex items-start gap-3 p-4 bg-white border-2 border-slate-200 rounded-xl cursor-pointer hover:border-newman-blue transition shadow-sm">
+                                <input type="checkbox" class="step-check mt-1 w-5 h-5 text-newman-blue" onchange="checkPasskeySteps()">
+                                <div>
+                                    <span class="font-bold text-slate-800 block">Step 2: Add Method</span>
+                                    <span class="text-sm text-slate-600">Click <strong>Add sign-in method</strong> and select <strong>Passkey</strong> (or Authenticator App).</span>
+                                </div>
+                            </label>
+                            
+                            <label class="flex items-start gap-3 p-4 bg-white border-2 border-slate-200 rounded-xl cursor-pointer hover:border-newman-blue transition shadow-sm">
+                                <input type="checkbox" class="step-check mt-1 w-5 h-5 text-newman-blue" onchange="checkPasskeySteps()">
+                                <div>
+                                    <span class="font-bold text-slate-800 block">Step 3: Scan & Save</span>
+                                    <span class="text-sm text-slate-600">A QR code will appear on your screen. Open your iPhone/Android camera, scan it, and let Face ID / Fingerprint save the key!</span>
+                                </div>
+                            </label>
+                        </div>
+                        
+                        <button id="next-btn-steps" onclick="nextLesson()" class="bg-slate-300 text-slate-500 font-bold py-3 px-6 rounded-xl shadow w-full md:w-auto cursor-not-allowed mx-auto block" disabled>Complete Training ➔</button>
+                    </div>
+                `
+            }
