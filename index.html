@@ -198,7 +198,7 @@
 
         // --- API SETUP ---
         // If this is left empty, the app will run in "Simulated AI" mode and provide pre-written funny responses.
-        const apiKey = "YOUR_API_KEY_HERE"; 
+        const apiKey = "AIzaSyCJuWtOwjx6jXloKcXDC9hMbhhUSs_b6ro"; 
         const TEXT_MODEL = "gemini-2.5-flash-preview-09-2025";
         const TEXT_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${TEXT_MODEL}:generateContent?key=${apiKey}`;
 
@@ -940,7 +940,7 @@
                                             <p class="text-sm text-slate-500 font-medium">Link your phone as a passkey for MFA and setup your recovery details.</p>
                                         </div>
                                     </div>
-                                    <button onclick="alert('This will redirect the user to: https://aka.ms/ssprsetup')" class="w-full sm:w-auto bg-newman-blue hover:bg-blue-600 text-white font-bold py-2 px-6 rounded shadow whitespace-nowrap transition">Enroll Now ➔</button>
+                                    <button onclick="window.open('https://aka.ms/ssprsetup', '_blank')" class="w-full sm:w-auto bg-newman-blue hover:bg-blue-600 text-white font-bold py-2 px-6 rounded shadow whitespace-nowrap transition">Enroll Now ➔</button>
                                 </div>
 
                                 <div class="bg-white border-2 border-slate-300 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between shadow-sm">
@@ -951,7 +951,7 @@
                                             <p class="text-sm text-slate-500 font-medium">Update to the new 15-character passphrase requirement. Yes, you still have to do this.</p>
                                         </div>
                                     </div>
-                                    <button onclick="alert('This will redirect the user to the M365 Password Reset Portal.')" class="w-full sm:w-auto bg-newman-navy hover:bg-blue-900 text-white font-bold py-2 px-6 rounded shadow whitespace-nowrap transition border-b-4 border-blue-950">Change Password ➔</button>
+                                    <button onclick="window.open('https://account.activedirectory.windowsazure.com/ChangePassword.aspx', '_blank')" class="w-full sm:w-auto bg-newman-navy hover:bg-blue-900 text-white font-bold py-2 px-6 rounded shadow whitespace-nowrap transition border-b-4 border-blue-950">Change Password ➔</button>
                                 </div>
                             </div>
 
