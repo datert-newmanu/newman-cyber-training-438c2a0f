@@ -788,9 +788,44 @@
                         <p class="text-slate-600 mb-6 font-medium">
                             Welcome to the Newman IT Security Assessment. Before I let you take the test and inevitably curse my name for *GASP* TWO IT requests in the same day (who do these guys think they are, The President?), we are going to do some interactive exercises. And since your on-site IT guys are always so nice (particularly one who goes by "Travis" is the rumor), I'm going to be that typical techie know-it-all that needs an attitude adjustment in every IT department at every company since the beginning of time, so strap in.
                         </p>
+                        
+                        <div class="mb-8 border-l-4 border-newman-blue bg-blue-50 p-4 rounded-r-xl shadow-inner">
+                            <h3 class="font-black text-slate-800 mb-2 uppercase tracking-wide text-sm flex items-center gap-2"><span>🍿</span> Optional Lifelines (For the "Visual Learners")</h3>
+                            <p class="text-sm text-slate-700 mb-4 font-medium">I have been informed by HR that some of you 'learn best through multimedia,' which is just corporate speak for 'I refuse to read.' So, I had AI generate a podcast and a video. Feel free to consume these before you take the test and inevitably break the network.</p>
+                            
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
+                                    <p class="text-xs font-bold text-slate-700 mb-2 flex items-center gap-1"><span>🎧</span> The Podcast</p>
+                                    <audio controls class="w-full h-8 outline-none">
+                                        <source src="podcast.mp3" type="audio/mpeg">
+                                        Your browser does not support the audio element.
+                                    </audio>
+                                </div>
+                                
+                                <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-sm flex flex-col justify-center items-center text-center cursor-pointer hover:bg-slate-100 transition hover:border-newman-blue" onclick="document.getElementById('video-modal').classList.remove('hidden')">
+                                    <p class="text-xs font-bold text-slate-700 mb-1 flex items-center gap-1 justify-center"><span>🎬</span> The Video Briefing</p>
+                                    <p class="text-[10px] text-newman-blue font-bold uppercase tracking-widest bg-blue-100 px-3 py-1 rounded-full mt-1">Click to Watch</p>
+                                </div>
+                            </div>
+                        </div>
+
                         <button onclick="startTraining()" class="bg-slate-800 hover:bg-slate-900 text-white font-black py-4 px-8 rounded-xl shadow transition w-full md:w-auto border-b-4 border-slate-600">
                             START LESSONS ➔
                         </button>
+                        
+                        <div id="video-modal" class="hidden fixed inset-0 z-50 bg-slate-900 bg-opacity-95 flex items-center justify-center p-4 backdrop-blur-sm">
+                            <div class="bg-white rounded-2xl overflow-hidden shadow-2xl w-full max-w-4xl border-4 border-slate-800 relative animate-fade-in">
+                                <button onclick="document.getElementById('video-modal').classList.add('hidden')" class="absolute top-3 right-3 z-10 bg-red-600 hover:bg-red-700 text-white rounded-full w-8 h-8 flex items-center justify-center font-black shadow-lg transition transform hover:scale-110">X</button>
+                                <div class="bg-slate-800 text-slate-300 px-4 py-2 font-bold text-xs uppercase tracking-widest flex items-center justify-between border-b border-slate-700">
+                                    <span>Newman IT Cinema (Please pay attention)</span>
+                                </div>
+                                <video controls class="w-full bg-black max-h-[75vh] outline-none">
+                                    <source src="training.mp4" type="video/mp4">
+                                    Your browser does not support the video tag.
+                                </video>
+                            </div>
+                        </div>
+
                     </div>
                 `;
             }
@@ -910,7 +945,7 @@
             else renderQuizScenario();
         }
 
-        function renderOutro() {
+function renderOutro() {
             currentState = 'outro';
             if (scoreContainer) scoreContainer.style.display = 'none';
             
@@ -954,6 +989,25 @@
                                     <button onclick="window.open('https://account.activedirectory.windowsazure.com/ChangePassword.aspx', '_blank')" class="w-full sm:w-auto bg-newman-navy hover:bg-blue-900 text-white font-bold py-2 px-6 rounded shadow whitespace-nowrap transition border-b-4 border-blue-950">Change Password ➔</button>
                                 </div>
                             </div>
+                            
+                            <div class="mb-8 border-l-4 border-newman-blue bg-blue-50 p-4 rounded-r-xl shadow-inner">
+                                <h3 class="font-black text-slate-800 mb-2 uppercase tracking-wide text-sm flex items-center gap-2"><span>🍿</span> Remedial Content</h3>
+                                <p class="text-sm text-slate-700 mb-4 font-medium">I see you passed. If you managed that without reviewing the material first, congratulations on your guessing skills. If you actually want to learn something so you don't break my network tomorrow, the podcast and video are still here for you.</p>
+                                
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
+                                        <p class="text-xs font-bold text-slate-700 mb-2 flex items-center gap-1"><span>🎧</span> The Podcast</p>
+                                        <audio controls class="w-full h-8 outline-none">
+                                            <source src="podcast.mp3" type="audio/mpeg">
+                                            Your browser does not support the audio element.
+                                        </audio>
+                                    </div>
+                                    <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-sm flex flex-col justify-center items-center text-center cursor-pointer hover:bg-slate-100 transition hover:border-newman-blue" onclick="document.getElementById('video-modal-outro').classList.remove('hidden')">
+                                        <p class="text-xs font-bold text-slate-700 mb-1 flex items-center gap-1 justify-center"><span>🎬</span> The Video Briefing</p>
+                                        <p class="text-[10px] text-newman-blue font-bold uppercase tracking-widest bg-blue-100 px-3 py-1 rounded-full mt-1">Click to Watch</p>
+                                    </div>
+                                </div>
+                            </div>
 
                             <div class="flex flex-col sm:flex-row justify-between items-center gap-4 mt-6">
                                  <button id="roast-btn" onclick="roastPerformance()" class="text-sm bg-purple-100 hover:bg-purple-200 text-purple-800 font-bold py-2 px-4 rounded-lg shadow-sm border border-purple-200 transition flex-1 w-full sm:w-auto">✨ Roast My Performance</button>
@@ -962,6 +1016,20 @@
                             <div id="roast-box" class="hidden mt-4 bg-purple-50 border border-purple-200 rounded-lg p-4 shadow-inner">
                                 <p id="roast-text" class="text-sm text-purple-900 font-medium"></p>
                             </div>
+                            
+                            <div id="video-modal-outro" class="hidden fixed inset-0 z-50 bg-slate-900 bg-opacity-95 flex items-center justify-center p-4 backdrop-blur-sm">
+                                <div class="bg-white rounded-2xl overflow-hidden shadow-2xl w-full max-w-4xl border-4 border-slate-800 relative animate-fade-in">
+                                    <button onclick="document.getElementById('video-modal-outro').classList.add('hidden')" class="absolute top-3 right-3 z-10 bg-red-600 hover:bg-red-700 text-white rounded-full w-8 h-8 flex items-center justify-center font-black shadow-lg transition transform hover:scale-110">X</button>
+                                    <div class="bg-slate-800 text-slate-300 px-4 py-2 font-bold text-xs uppercase tracking-widest flex items-center justify-between border-b border-slate-700">
+                                        <span>Newman IT Cinema (Please pay attention)</span>
+                                    </div>
+                                    <video controls class="w-full bg-black max-h-[75vh] outline-none">
+                                        <source src="training.mp4" type="video/mp4">
+                                        Your browser does not support the video tag.
+                                    </video>
+                                </div>
+                            </div>
+                            
                         </div>
                     `;
                 }
@@ -975,8 +1043,27 @@
                                 <div class="text-xs text-slate-400 font-black mb-1 tracking-widest uppercase">Final Will to Live</div>
                                 <div class="text-5xl font-black text-red-600 font-mono">${score}%</div>
                             </div>
-                            <p class="text-lg text-slate-700 mb-6 font-semibold">You are a catastrophic liability. IT is currently crying in the MDF closet. You must restart the training before you are allowed to enroll in SSPR or change your password.</p>
+                            <p class="text-lg text-slate-700 mb-4 font-semibold">You are a catastrophic liability. IT is currently crying in the MDF closet. You must restart the training before you are allowed to enroll in SSPR or change your password.</p>
                             
+                            <div class="mb-6 border-l-4 border-red-500 bg-red-50 p-4 rounded-r-xl shadow-inner">
+                                <h3 class="font-black text-red-900 mb-2 uppercase tracking-wide text-sm flex items-center gap-2"><span>📉</span> Mandatory Review</h3>
+                                <p class="text-sm text-red-800 mb-4 font-medium">Since you catastrophically failed, I am going to assume you completely ignored the podcast and video at the beginning. Do me a favor and consume them now before you try again, so I don't have to keep watching you fail.</p>
+                                
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div class="bg-white p-3 rounded-lg border border-red-200 shadow-sm">
+                                        <p class="text-xs font-bold text-slate-700 mb-2 flex items-center gap-1"><span>🎧</span> The Podcast</p>
+                                        <audio controls class="w-full h-8 outline-none">
+                                            <source src="podcast.mp3" type="audio/mpeg">
+                                            Your browser does not support the audio element.
+                                        </audio>
+                                    </div>
+                                    <div class="bg-white p-3 rounded-lg border border-red-200 shadow-sm flex flex-col justify-center items-center text-center cursor-pointer hover:bg-red-50 transition hover:border-red-500" onclick="document.getElementById('video-modal-outro').classList.remove('hidden')">
+                                        <p class="text-xs font-bold text-slate-700 mb-1 flex items-center gap-1 justify-center"><span>🎬</span> The Video Briefing</p>
+                                        <p class="text-[10px] text-red-600 font-bold uppercase tracking-widest bg-red-100 px-3 py-1 rounded-full mt-1">Click to Watch</p>
+                                    </div>
+                                </div>
+                            </div>
+
                             <button onclick="renderIntro()" class="bg-slate-800 hover:bg-slate-900 text-white font-black py-4 px-8 rounded-xl transition border-b-4 border-slate-600 w-full mb-4">
                                 ↻ Restart Full Suite
                             </button>
@@ -985,6 +1072,20 @@
                             <div id="roast-box" class="hidden mt-4 bg-red-50 border border-red-200 rounded-lg p-4 shadow-inner">
                                 <p id="roast-text" class="text-sm text-red-900 font-medium"></p>
                             </div>
+                            
+                            <div id="video-modal-outro" class="hidden fixed inset-0 z-50 bg-slate-900 bg-opacity-95 flex items-center justify-center p-4 backdrop-blur-sm">
+                                <div class="bg-white rounded-2xl overflow-hidden shadow-2xl w-full max-w-4xl border-4 border-slate-800 relative animate-fade-in">
+                                    <button onclick="document.getElementById('video-modal-outro').classList.add('hidden')" class="absolute top-3 right-3 z-10 bg-red-600 hover:bg-red-700 text-white rounded-full w-8 h-8 flex items-center justify-center font-black shadow-lg transition transform hover:scale-110">X</button>
+                                    <div class="bg-slate-800 text-slate-300 px-4 py-2 font-bold text-xs uppercase tracking-widest flex items-center justify-between border-b border-slate-700">
+                                        <span>Newman IT Cinema (Please pay attention)</span>
+                                    </div>
+                                    <video controls class="w-full bg-black max-h-[75vh] outline-none">
+                                        <source src="training.mp4" type="video/mp4">
+                                        Your browser does not support the video tag.
+                                    </video>
+                                </div>
+                            </div>
+                            
                         </div>
                     `;
                 }
